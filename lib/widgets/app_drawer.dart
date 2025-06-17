@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:erp_app/screens/hrm/hrm_home_screen.dart';
+import 'package:erp_app/screens/inventory/inventory_home_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -34,6 +35,17 @@ class AppDrawer extends StatelessWidget {
                 );
               },
             ),
+            ListTile(
+  leading: Icon(Icons.inventory_2),
+  title: Text('Inventory & Supply Chain'),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const InventoryHomeScreen()),
+    );
+  },
+),
+
             const Spacer(),
             const Divider(),
             ListTile(
