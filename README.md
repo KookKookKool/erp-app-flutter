@@ -41,7 +41,7 @@ Additional modules and integrations will be announced as the project evolves.
 ## Getting Started
 
 1. Clone this repository  
-   `git clone https://github.com/yourusername/your-repo-name.git`
+   `git clone https://github.com/KookKookKool/erp-app-flutter`
 2. Install dependencies  
    `flutter pub get`
 3. Run the app  
