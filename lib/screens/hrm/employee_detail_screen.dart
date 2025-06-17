@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'employee_edit_screen.dart';
+import 'package:erp_app/utils/date_utils.dart';
 
 class EmployeeDetailScreen extends StatefulWidget {
   final Map<String, dynamic> employee;
@@ -108,6 +109,9 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
           const SizedBox(height: 16),
           ListTile(leading: const Icon(Icons.email), title: Text(emp['email'])),
           ListTile(leading: const Icon(Icons.phone), title: Text(emp['phone'])),
+          Text("วันที่เริ่มงาน: ${formatDate(emp['startDate'] ?? '')}"),
+          Text("อายุงาน: ${getWorkDuration(emp['startDate'] ?? '')}"),
+
           const Divider(height: 36),
           ListTile(
             leading: const Icon(Icons.login),

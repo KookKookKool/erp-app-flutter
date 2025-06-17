@@ -22,7 +22,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     "position": "HR Manager",
     "email": "faijai@gmail.com",
     "phone": "081-234-5678",
-    "profilePic": "https://i.pravatar.cc/300?img=5", // demo
+    "profilePic": "https://i.pravatar.cc/300?img=5",
+    "startDate": "2020-01-20",
   };
 
   // mock ข้อมูลเวลาเข้า-ออก
@@ -70,7 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onPressed: handleCheckInOut,
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(8),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(

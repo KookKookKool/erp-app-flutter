@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'product_list_screen.dart';
+import 'warehouse_list_screen.dart';
+import 'stock_movement_list_screen.dart';
 
 class InventoryHomeScreen extends StatelessWidget {
   const InventoryHomeScreen({super.key});
@@ -29,46 +31,47 @@ class InventoryHomeScreen extends StatelessWidget {
             _InventoryModuleIcon(
               icon: Icons.store,
               label: "คลัง/โกดัง",
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("กำลังพัฒนา...")),
-                );
-              },
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const WarehouseListScreen()),
+              ),
             ),
+
             _InventoryModuleIcon(
               icon: Icons.shopping_cart_checkout,
               label: "ระบบจัดซื้อ (Purchasing)",
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("กำลังพัฒนา...")),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text("กำลังพัฒนา...")));
               },
             ),
             _InventoryModuleIcon(
               icon: Icons.local_shipping,
               label: "รับ/จ่าย/โอนสินค้า",
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("กำลังพัฒนา...")),
-                );
-              },
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StockMovementListScreen(),
+                ),
+              ),
             ),
             _InventoryModuleIcon(
               icon: Icons.people_alt,
               label: "ซัพพลายเออร์ (Supplier)",
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("กำลังพัฒนา...")),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text("กำลังพัฒนา...")));
               },
             ),
             _InventoryModuleIcon(
               icon: Icons.analytics,
               label: "รายงาน/วิเคราะห์",
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("กำลังพัฒนา...")),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text("กำลังพัฒนา...")));
               },
             ),
           ],
@@ -108,7 +111,10 @@ class _InventoryModuleIcon extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 label,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],

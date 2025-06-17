@@ -21,6 +21,7 @@ class _EmployeeManageScreenState extends State<EmployeeManageScreen> {
       "phone": "0812345678",
       "profilePic": "https://i.pravatar.cc/300?img=5",
       "password": "123456",
+      "startDate": "2020-01-20", // วันที่เริ่มงาน
     },
     {
       "empId": "EMP002",
@@ -32,6 +33,7 @@ class _EmployeeManageScreenState extends State<EmployeeManageScreen> {
       "phone": "0898765432",
       "profilePic": "https://i.pravatar.cc/300?img=2",
       "password": "654321",
+      "startDate": "2020-01-20", // วันที่เริ่มงาน
     },
     // เพิ่ม mock พนักงานอื่นๆ ได้
   ];

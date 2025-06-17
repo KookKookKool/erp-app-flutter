@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:erp_app/utils/date_utils.dart';
 
 class EmployeeEditScreen extends StatefulWidget {
   final Map<String, dynamic> employee;
@@ -24,7 +25,9 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
     _imgController = TextEditingController(text: emp['profilePic'] ?? "");
     _passwordController = TextEditingController(text: emp['password'] ?? "");
     // สำหรับแก้ไข ถ้า profilePic เป็น path ในเครื่อง ให้โชว์เป็นไฟล์
-    if (emp['profilePic'] != null && emp['profilePic'].toString().isNotEmpty && !emp['profilePic'].toString().startsWith('http')) {
+    if (emp['profilePic'] != null &&
+        emp['profilePic'].toString().isNotEmpty &&
+        !emp['profilePic'].toString().startsWith('http')) {
       _pickedImageFile = File(emp['profilePic']);
     }
     super.initState();
@@ -97,10 +100,7 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
               Center(
                 child: Column(
                   children: [
-                    GestureDetector(
-                      onTap: _pickImage,
-                      child: avatarWidget,
-                    ),
+                    GestureDetector(onTap: _pickImage, child: avatarWidget),
                     const SizedBox(height: 10),
                     TextFormField(
                       controller: _imgController,
@@ -171,6 +171,12 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                 obscureText: !_showPassword,
                 onChanged: (v) => emp['password'] = v,
               ),
+              TextFormField(
+                initialValue: formatDate(emp['startDate'] ?? ''),
+                decoration: const InputDecoration(labelText: "วันที่เริ่มงาน"),
+                enabled: false,
+              ),
+
               const SizedBox(height: 28),
               Row(
                 children: [

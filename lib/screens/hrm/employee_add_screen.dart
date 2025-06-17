@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+String formatDate(String dateStr) {
+  if (dateStr.isEmpty) return '';
+  final d = DateTime.parse(dateStr);
+  return "${d.day.toString().padLeft(2, '0')}-${d.month.toString().padLeft(2, '0')}-${d.year}";
+}
+
 class EmployeeAddScreen extends StatefulWidget {
   const EmployeeAddScreen({super.key});
   @override
@@ -21,7 +27,7 @@ class _EmployeeAddScreenState extends State<EmployeeAddScreen> {
     "profilePic": "", // default: ยังไม่มี
     "password": "",
   };
-
+  late String startDate;
   late TextEditingController _imgController;
   late TextEditingController _passwordController;
   bool _showPassword = false;
@@ -32,6 +38,8 @@ class _EmployeeAddScreenState extends State<EmployeeAddScreen> {
     _imgController = TextEditingController();
     _passwordController = TextEditingController();
     super.initState();
+        final now = DateTime.now();
+    startDate = now.toIso8601String().substring(0, 10);
   }
 
   @override
@@ -66,6 +74,7 @@ class _EmployeeAddScreenState extends State<EmployeeAddScreen> {
           ? _imgController.text
           : (_pickedImageFile != null ? _pickedImageFile!.path : "");
       emp['password'] = _passwordController.text;
+      
       Navigator.pop(context, emp);
     }
   }
@@ -165,6 +174,11 @@ class _EmployeeAddScreenState extends State<EmployeeAddScreen> {
                 ),
                 obscureText: !_showPassword,
                 onChanged: (v) => emp['password'] = v,
+              ),
+              TextFormField(
+                initialValue: formatDate(startDate),
+                decoration: const InputDecoration(labelText: "วันที่เริ่มงาน"),
+                enabled: false,
               ),
               const SizedBox(height: 28),
               Row(
