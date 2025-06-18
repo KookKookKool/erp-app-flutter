@@ -84,8 +84,8 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
       );
     } else {
       avatarWidget = const CircleAvatar(
-        child: Icon(Icons.person, size: 40),
         radius: 40,
+        child: Icon(Icons.person, size: 40),
       );
     }
 

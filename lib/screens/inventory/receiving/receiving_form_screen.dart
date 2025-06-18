@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:erp_app/utils/stock_utils.dart';
 
 class ReceivingFormScreen extends StatefulWidget {
-  final Map<String, dynamic>? receipt;
+  final Map<String, dynamic>? receipt; // (สำหรับ edit) ส่ง receipt เดิมมา
   const ReceivingFormScreen({super.key, this.receipt});
 
   @override
@@ -9,171 +10,209 @@ class ReceivingFormScreen extends StatefulWidget {
 }
 
 class _ReceivingFormScreenState extends State<ReceivingFormScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _receiveNoController = TextEditingController();
-  final _dateController = TextEditingController();
-  final _poNoController = TextEditingController();
-  final _supplierController = TextEditingController();
-  final _warehouseController = TextEditingController();
-  String status = "รับครบ";
-  List<Map<String, dynamic>> items = [];
+  // Mock PO list (จะ move ไป global หรือ provider/db ได้ในอนาคต)
+  final List<Map<String, dynamic>> poList = [
+    {
+      "poNo": "PO-240001",
+      "supplier": "บริษัท สมาร์ทซัพพลาย จำกัด",
+      "warehouse": "คลังหลัก",
+      "items": [
+        {
+          "code": "P001",
+          "name": "สมุดโน๊ต A5",
+          "qty": 10,
+          "unit": "เล่ม",
+          "received": 2,
+        },
+        {
+          "code": "P002",
+          "name": "ปากกาเจล",
+          "qty": 20,
+          "unit": "ด้าม",
+          "received": 5,
+        },
+      ],
+      "status": "อนุมัติ",
+    },
+    {
+      "poNo": "PO-240002",
+      "supplier": "รุ่งเรืองการค้า",
+      "warehouse": "คลังสาขา 1",
+      "items": [
+        {
+          "code": "P003",
+          "name": "น้ำดื่ม",
+          "qty": 50,
+          "unit": "ขวด",
+          "received": 0,
+        },
+      ],
+      "status": "อนุมัติ",
+    },
+  ];
+
+  String? selectedPoNo;
+  Map<String, dynamic>? selectedPO;
+  List<TextEditingController> qtyControllers = [];
 
   @override
   void initState() {
     super.initState();
     if (widget.receipt != null) {
-      _receiveNoController.text = widget.receipt!["receiveNo"] ?? "";
-      _dateController.text = widget.receipt!["date"] ?? "";
-      _poNoController.text = widget.receipt!["poNo"] ?? "";
-      _supplierController.text = widget.receipt!["supplier"] ?? "";
-      _warehouseController.text = widget.receipt!["warehouse"] ?? "";
-      status = widget.receipt!["status"] ?? "รับครบ";
-      items = List<Map<String, dynamic>>.from(widget.receipt!["items"] ?? []);
+      selectedPoNo = widget.receipt!["poNo"];
+      selectedPO = poList.firstWhere(
+        (po) => po["poNo"] == selectedPoNo,
+        orElse: () => {},
+      );
+      qtyControllers = [];
+      if (widget.receipt!["items"] != null &&
+          (widget.receipt!["items"] as List).isNotEmpty) {
+        for (var item in widget.receipt!["items"]) {
+          final receiveNow = item["receivedNow"] ?? 0;
+          qtyControllers.add(
+            TextEditingController(text: receiveNow.toString()),
+          );
+        }
+      } else if (selectedPO != null) {
+        // fallback: กรณีข้อมูล receipt ไม่มี items หรือแก้ไขข้อมูล PO
+        for (var item in selectedPO!["items"]) {
+          final remaining = item["qty"] - (item["received"] ?? 0);
+          qtyControllers.add(TextEditingController(text: remaining.toString()));
+        }
+      }
     }
   }
 
   @override
   void dispose() {
-    _receiveNoController.dispose();
-    _dateController.dispose();
-    _poNoController.dispose();
-    _supplierController.dispose();
-    _warehouseController.dispose();
+    for (final c in qtyControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
-  void _save() {
-    if (_formKey.currentState!.validate() && items.isNotEmpty) {
-      Navigator.pop(context, {
-        "receiveNo": _receiveNoController.text,
-        "date": _dateController.text,
-        "poNo": _poNoController.text,
-        "supplier": _supplierController.text,
-        "warehouse": _warehouseController.text,
-        "items": items,
-        "status": status,
-      });
-    }
+  void selectPO(String? poNo) {
+    setState(() {
+      selectedPoNo = poNo;
+      selectedPO = poList.firstWhere((po) => po["poNo"] == poNo);
+      for (var c in qtyControllers) {
+        c.dispose();
+      }
+      qtyControllers = [];
+      for (var item in selectedPO!["items"]) {
+        final remaining = item["qty"] - (item["received"] ?? 0);
+        qtyControllers.add(TextEditingController(text: remaining.toString()));
+      }
+    });
   }
 
-  void _delete() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("ยืนยันลบรายการรับสินค้า"),
-        content: const Text("ต้องการลบใช่หรือไม่?"),
-        actions: [
-          TextButton(
-            child: const Text("ยกเลิก"),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-          TextButton(
-            child: const Text("ลบ", style: TextStyle(color: Colors.red)),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-        ],
-      ),
-    );
-    if (confirm == true) {
-      Navigator.pop(context, 'delete');
+  void save() {
+    if (selectedPO == null) return;
+    final items = <Map<String, dynamic>>[];
+    bool receivedAll = true;
+    for (int i = 0; i < selectedPO!["items"].length; i++) {
+      final item = selectedPO!["items"][i];
+      final maxCanReceive = item["qty"] - (item["received"] ?? 0);
+      final receiveNow = int.tryParse(qtyControllers[i].text) ?? 0;
+      if (receiveNow > maxCanReceive || receiveNow < 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("จำนวนรับของ ${item["name"]} ไม่ถูกต้อง")),
+        );
+        return;
+      }
+      items.add({
+        "code": item["code"],
+        "name": item["name"],
+        "qty": item["qty"],
+        "unit": item["unit"],
+        "received": (item["received"] ?? 0) + receiveNow,
+        "receivedNow": receiveNow,
+      });
+      if ((item["received"] ?? 0) + receiveNow < item["qty"]) {
+        receivedAll = false;
+      }
     }
+    // สถานะรับครบ/ไม่ครบ
+    String status = receivedAll ? "รับครบ" : "รับบางส่วน";
+    final data = {
+      "poNo": selectedPO!["poNo"],
+      "supplier": selectedPO!["supplier"],
+      "warehouse": selectedPO!["warehouse"],
+      "items": items,
+      "status": status,
+      "date": DateTime.now().toIso8601String().substring(0, 10),
+    };
+    Navigator.pop(context, data);
   }
 
   @override
   Widget build(BuildContext context) {
-    final isEdit = widget.receipt != null;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEdit ? "แก้ไขรับสินค้าเข้า" : "รับสินค้าเข้าใหม่"),
-        actions: isEdit
-            ? [
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  tooltip: "ลบรายการนี้",
-                  onPressed: _delete,
-                ),
-              ]
-            : null,
-      ),
+      appBar: AppBar(title: const Text("รับสินค้าเข้าคลังตาม PO")),
       body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _receiveNoController,
-                decoration: const InputDecoration(labelText: "เลขที่รับเข้า"),
-                validator: (v) => v == null || v.isEmpty ? "จำเป็น" : null,
-                enabled: !isEdit,
+        padding: const EdgeInsets.all(20),
+        child: ListView(
+          children: [
+            DropdownButtonFormField<String>(
+              value: selectedPoNo,
+              hint: const Text("เลือกใบสั่งซื้อ (PO) ที่อนุมัติ"),
+              items: poList
+                  .map(
+                    (po) => DropdownMenuItem<String>(
+                      value: po["poNo"],
+                      child: Text("${po["poNo"]} - ${po["supplier"]}"),
+                    ),
+                  )
+                  .toList(),
+              onChanged: selectPO,
+              decoration: const InputDecoration(
+                labelText: "เลือก PO",
+                border: OutlineInputBorder(),
               ),
-              TextFormField(
-                controller: _dateController,
-                decoration: const InputDecoration(labelText: "วันที่ (YYYY-MM-DD)"),
-                validator: (v) => v == null || v.isEmpty ? "จำเป็น" : null,
-              ),
-              TextFormField(
-                controller: _poNoController,
-                decoration: const InputDecoration(labelText: "เลขที่ใบสั่งซื้อ (PO)"),
-                validator: (v) => v == null || v.isEmpty ? "จำเป็น" : null,
-              ),
-              TextFormField(
-                controller: _supplierController,
-                decoration: const InputDecoration(labelText: "Supplier"),
-                validator: (v) => v == null || v.isEmpty ? "จำเป็น" : null,
-              ),
-              TextFormField(
-                controller: _warehouseController,
-                decoration: const InputDecoration(labelText: "คลัง"),
-                validator: (v) => v == null || v.isEmpty ? "จำเป็น" : null,
-              ),
-              DropdownButtonFormField<String>(
-                value: status,
-                decoration: const InputDecoration(labelText: "สถานะ"),
-                items: const [
-                  DropdownMenuItem(value: "รับครบ", child: Text("รับครบ")),
-                  DropdownMenuItem(value: "รับบางส่วน", child: Text("รับบางส่วน")),
-                ],
-                onChanged: (v) => setState(() => status = v ?? "รับครบ"),
-              ),
+            ),
+            if (selectedPO != null) ...[
               const SizedBox(height: 16),
-              const Text("รายการสินค้า", style: TextStyle(fontWeight: FontWeight.bold)),
-              ...items.map((item) => Card(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: ListTile(
-                  title: Text("${item["name"]} (${item["qty"]} ${item["unit"]})"),
-                  subtitle: Text("รหัส: ${item["code"]}"),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      setState(() => items.remove(item));
-                    },
-                  ),
-                ),
-              )),
-              const SizedBox(height: 6),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text("เพิ่มสินค้า"),
-                onPressed: () async {
-                  // mockup: กดจะเพิ่มสินค้าเทียม
-                  setState(() {
-                    items.add({
-                      "code": "P00${items.length + 1}",
-                      "name": "สินค้าใหม่",
-                      "qty": 1,
-                      "unit": "ชิ้น",
-                    });
-                  });
-                },
+              Text("Supplier: ${selectedPO!["supplier"]}"),
+              Text("คลังรับเข้า: ${selectedPO!["warehouse"]}"),
+              const Divider(),
+              const Text(
+                "รายการสินค้า",
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _save,
-                child: const Text("บันทึก"),
+              ...List.generate(selectedPO!["items"].length, (i) {
+                final item = selectedPO!["items"][i];
+                final already = item["received"] ?? 0;
+                final maxCanReceive = item["qty"] - already;
+                return Card(
+                  child: ListTile(
+                    title: Text(
+                      "${item["name"]} (${item["qty"]} ${item["unit"]})",
+                    ),
+                    subtitle: Text(
+                      "รับแล้ว $already/${item["qty"]} | เหลือรับอีก $maxCanReceive",
+                    ),
+                    trailing: SizedBox(
+                      width: 80,
+                      child: TextFormField(
+                        controller: qtyControllers.length > i
+                            ? qtyControllers[i]
+                            : TextEditingController(text: "0"),
+                        decoration: const InputDecoration(labelText: "รับเข้า"),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ),
+                );
+              }),
+
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.save),
+                label: const Text("บันทึก"),
+                onPressed: save,
               ),
             ],
-          ),
+          ],
         ),
       ),
     );

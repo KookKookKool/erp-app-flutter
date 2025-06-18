@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'stock_movement_form_screen.dart';
+import 'issuing_form_screen.dart';
+import 'transfer_form_screen.dart';
 
 class StockMovementListScreen extends StatefulWidget {
   const StockMovementListScreen({super.key});
   @override
-  State<StockMovementListScreen> createState() => _StockMovementListScreenState();
+  State<StockMovementListScreen> createState() =>
+      _StockMovementListScreenState();
 }
 
 class _StockMovementListScreenState extends State<StockMovementListScreen> {
@@ -57,18 +60,15 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
     final filtered = movements.where((mv) {
       final matchType = filterType == null || mv["type"] == filterType;
       if (!matchType) return false;
-
       if (searchText.isEmpty) return true;
       final q = searchText.toLowerCase();
-      return mv.values
-        .whereType<String>()
-        .any((v) => v.toLowerCase().contains(q));
+      return mv.values.whereType<String>().any(
+        (v) => v.toLowerCase().contains(q),
+      );
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("รับ/จ่าย/โอนสินค้า"),
-      ),
+      appBar: AppBar(title: const Text("รับ/จ่าย/โอนสินค้า")),
       body: Column(
         children: [
           Padding(
@@ -107,7 +107,10 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
                     ),
                   ),
                 ),
@@ -144,7 +147,9 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                       }
                       return Card(
                         elevation: 3,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                         margin: const EdgeInsets.only(bottom: 14),
                         child: ListTile(
                           leading: CircleAvatar(
@@ -159,12 +164,16 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text("ประเภท: $label  |  เลขที่: ${mv["docNo"]}"),
-                              Text("คลัง: ${mv["warehouse"]}  |  วันที่: ${mv["date"]}"),
+                              Text(
+                                "คลัง: ${mv["warehouse"]}  |  วันที่: ${mv["date"]}",
+                              ),
                               if ((mv["remark"] ?? "").toString().isNotEmpty)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 2),
-                                  child: Text("หมายเหตุ: ${mv["remark"]}",
-                                      style: const TextStyle(fontSize: 12)),
+                                  child: Text(
+                                    "หมายเหตุ: ${mv["remark"]}",
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
                                 ),
                             ],
                           ),
@@ -174,14 +183,16 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                               final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => StockMovementFormScreen(movement: mv),
+                                  builder: (_) =>
+                                      StockMovementFormScreen(movement: mv),
                                 ),
                               );
                               if (result == 'delete') {
                                 setState(() {
                                   movements.removeAt(i);
                                 });
-                              } else if (result != null && result is Map<String, dynamic>) {
+                              } else if (result != null &&
+                                  result is Map<String, dynamic>) {
                                 setState(() {
                                   movements[i] = result;
                                 });
@@ -192,14 +203,16 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                             final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => StockMovementFormScreen(movement: mv),
+                                builder: (_) =>
+                                    StockMovementFormScreen(movement: mv),
                               ),
                             );
                             if (result == 'delete') {
                               setState(() {
                                 movements.removeAt(i);
                               });
-                            } else if (result != null && result is Map<String, dynamic>) {
+                            } else if (result != null &&
+                                result is Map<String, dynamic>) {
                               setState(() {
                                 movements[i] = result;
                               });
@@ -212,18 +225,57 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.add),
-        label: const Text("รับ/จ่าย/โอนใหม่"),
-        onPressed: () async {
-          final newMv = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const StockMovementFormScreen()),
-          );
-          if (newMv != null) {
-            setState(() => movements.add(newMv));
-          }
-        },
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: "issue",
+            icon: const Icon(Icons.remove_shopping_cart),
+            label: const Text("จ่ายสินค้าออก"),
+            backgroundColor: Colors.redAccent,
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const IssuingFormScreen()),
+              );
+              setState(() {}); // refresh stock/log
+            },
+          ),
+          const SizedBox(height: 14),
+          FloatingActionButton.extended(
+            heroTag: "transfer",
+            icon: const Icon(Icons.compare_arrows),
+            label: const Text("โอนสินค้า"),
+            backgroundColor: Colors.blueAccent,
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StockTransferFormScreen(),
+                ),
+              );
+              setState(() {}); // refresh stock/log
+            },
+          ),
+          const SizedBox(height: 14),
+          FloatingActionButton.extended(
+            heroTag: "add",
+            icon: const Icon(Icons.add),
+            label: const Text("รับ/จ่าย/โอนใหม่"),
+            onPressed: () async {
+              final newMv = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StockMovementFormScreen(),
+                ),
+              );
+              if (newMv != null) {
+                setState(() => movements.add(newMv));
+              }
+            },
+          ),
+        ],
       ),
     );
   }

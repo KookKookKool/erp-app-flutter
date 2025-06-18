@@ -65,8 +65,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   margin: const EdgeInsets.only(bottom: 14),
                   child: ListTile(
                     leading: const CircleAvatar(
-                      child: Icon(Icons.inventory),
                       backgroundColor: Colors.deepOrange,
+                      child: Icon(Icons.inventory),
                     ),
                     title: Text(
                       p["name"],

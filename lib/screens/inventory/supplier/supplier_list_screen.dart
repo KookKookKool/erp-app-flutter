@@ -65,8 +65,8 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
                   margin: const EdgeInsets.only(bottom: 14),
                   child: ListTile(
                     leading: const CircleAvatar(
-                      child: Icon(Icons.person),
                       backgroundColor: Colors.purpleAccent,
+                      child: Icon(Icons.person),
                     ),
                     title: Text(
                       s["name"],
