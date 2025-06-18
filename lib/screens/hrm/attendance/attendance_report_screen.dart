@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'widgets/status_filter_bar.dart';
-import 'widgets/attendance_list_item.dart';
-import 'widgets/leave_list_item.dart';
+import '../widgets/status_filter_bar.dart';
+import '../widgets/attendance_list_item.dart';
+import '../widgets/leave_list_item.dart';
 import 'leave_approve_screen.dart';
 
 class AttendanceReportScreen extends StatefulWidget {

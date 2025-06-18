@@ -3,7 +3,7 @@ import 'profile_card.dart';
 import 'time_card.dart';
 import 'checkin_button.dart';
 import '../../widgets/app_drawer.dart';
-import '../../screens/hrm/leave_request_screen.dart';
+import '../hrm/attendance/leave_request_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'employee_manage_screen.dart';
-import 'attendance_report_screen.dart';
+import 'employee/employee_manage_screen.dart';
+import 'attendance/attendance_report_screen.dart';
 
 class HRMHomeScreen extends StatelessWidget {
   const HRMHomeScreen({super.key});
