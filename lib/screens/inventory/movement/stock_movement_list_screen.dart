@@ -2,63 +2,34 @@ import 'package:flutter/material.dart';
 import 'stock_movement_form_screen.dart';
 import 'issuing_form_screen.dart';
 import 'transfer_form_screen.dart';
+import 'package:erp_app/utils/stock_utils.dart'; // ใช้งาน movementLog
 
 class StockMovementListScreen extends StatefulWidget {
   const StockMovementListScreen({super.key});
   @override
-  State<StockMovementListScreen> createState() =>
-      _StockMovementListScreenState();
+  State<StockMovementListScreen> createState() => _StockMovementListScreenState();
 }
 
 class _StockMovementListScreenState extends State<StockMovementListScreen> {
-  List<Map<String, dynamic>> movements = [
-    {
-      "type": "IN",
-      "date": "2024-06-19",
-      "docNo": "IN-240001",
-      "warehouse": "คลังหลัก",
-      "product": "สมุดโน๊ต A5",
-      "qty": 50,
-      "unit": "เล่ม",
-      "remark": "รับเข้า (สั่งซื้อ)",
-    },
-    {
-      "type": "OUT",
-      "date": "2024-06-18",
-      "docNo": "OUT-240001",
-      "warehouse": "คลังสาขา 1",
-      "product": "น้ำดื่ม 600ml",
-      "qty": 10,
-      "unit": "ขวด",
-      "remark": "เบิกใช้งานกิจกรรม",
-    },
-    {
-      "type": "TRANSFER",
-      "date": "2024-06-17",
-      "docNo": "TRF-240001",
-      "warehouse": "คลังหลัก → คลังสาขา 1",
-      "product": "ปากกาเจล",
-      "qty": 20,
-      "unit": "ด้าม",
-      "remark": "โอนย้ายคลัง",
-    },
-  ];
-
   String searchText = "";
 
+  // ใช้ "" แทนค่า null ใน dropdown
   final typeOptions = [
-    {"value": null, "label": "ทั้งหมด"},
+    {"value": "", "label": "ทั้งหมด"},
     {"value": "IN", "label": "รับเข้า"},
     {"value": "OUT", "label": "จ่ายออก"},
     {"value": "TRANSFER", "label": "โอนคลัง"},
   ];
-  String? filterType;
+  String filterType = "";
 
   @override
   Widget build(BuildContext context) {
-    // ฟิลเตอร์ทั้ง search และ type
+    // ดึง movementLog จาก stock_utils.dart
+    final movements = List<Map<String, dynamic>>.from(movementLog);
+
+    // ฟิลเตอร์ทั้งประเภทและค้นหา
     final filtered = movements.where((mv) {
-      final matchType = filterType == null || mv["type"] == filterType;
+      final matchType = filterType.isEmpty || mv["type"] == filterType;
       if (!matchType) return false;
       if (searchText.isEmpty) return true;
       final q = searchText.toLowerCase();
@@ -103,7 +74,7 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                           ),
                         )
                         .toList(),
-                    onChanged: (val) => setState(() => filterType = val),
+                    onChanged: (val) => setState(() => filterType = val ?? ""),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       isDense: true,
@@ -157,15 +128,17 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                             child: Icon(iconData, color: color),
                           ),
                           title: Text(
-                            "${mv["product"]}  (${mv["qty"]} ${mv["unit"]})",
+                            "${mv["productName"] ?? mv["product"]}  (${mv["qty"]} ${mv["unit"] ?? ""})",
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("ประเภท: $label  |  เลขที่: ${mv["docNo"]}"),
                               Text(
-                                "คลัง: ${mv["warehouse"]}  |  วันที่: ${mv["date"]}",
+                                "ประเภท: $label  |  เลขที่: ${mv["docNo"] ?? "-"}",
+                              ),
+                              Text(
+                                "คลัง: ${mv["warehouse"] ?? "-"}  |  วันที่: ${mv["date"] ?? "-"}",
                               ),
                               if ((mv["remark"] ?? "").toString().isNotEmpty)
                                 Padding(
@@ -187,16 +160,7 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                                       StockMovementFormScreen(movement: mv),
                                 ),
                               );
-                              if (result == 'delete') {
-                                setState(() {
-                                  movements.removeAt(i);
-                                });
-                              } else if (result != null &&
-                                  result is Map<String, dynamic>) {
-                                setState(() {
-                                  movements[i] = result;
-                                });
-                              }
+                              setState(() {});
                             },
                           ),
                           onTap: () async {
@@ -207,16 +171,7 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                                     StockMovementFormScreen(movement: mv),
                               ),
                             );
-                            if (result == 'delete') {
-                              setState(() {
-                                movements.removeAt(i);
-                              });
-                            } else if (result != null &&
-                                result is Map<String, dynamic>) {
-                              setState(() {
-                                movements[i] = result;
-                              });
-                            }
+                            setState(() {});
                           },
                         ),
                       );
@@ -255,7 +210,7 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                   builder: (_) => const StockTransferFormScreen(),
                 ),
               );
-              setState(() {}); // refresh stock/log
+              setState(() {});
             },
           ),
           const SizedBox(height: 14),
@@ -270,9 +225,7 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                   builder: (_) => const StockMovementFormScreen(),
                 ),
               );
-              if (newMv != null) {
-                setState(() => movements.add(newMv));
-              }
+              setState(() {});
             },
           ),
         ],

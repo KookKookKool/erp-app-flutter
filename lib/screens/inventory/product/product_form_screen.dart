@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:erp_app/utils/mock_data.dart';
 
 class ProductFormScreen extends StatefulWidget {
   final Map<String, dynamic>? product;
@@ -15,8 +16,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   final _categoryController = TextEditingController();
   final _unitController = TextEditingController();
   final _stockController = TextEditingController();
-  final _warehouseController = TextEditingController();
   final _remarkController = TextEditingController();
+
+  String? _selectedWarehouseCode; // new
 
   @override
   void initState() {
@@ -27,7 +29,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       _categoryController.text = widget.product!["category"] ?? "";
       _unitController.text = widget.product!["unit"] ?? "";
       _stockController.text = widget.product!["stock"]?.toString() ?? "";
-      _warehouseController.text = widget.product!["warehouse"] ?? "";
+      _selectedWarehouseCode = widget.product!["warehouseCode"];
       _remarkController.text = widget.product!["remark"] ?? "";
     }
   }
@@ -39,20 +41,25 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _categoryController.dispose();
     _unitController.dispose();
     _stockController.dispose();
-    _warehouseController.dispose();
     _remarkController.dispose();
     super.dispose();
   }
 
   void _save() {
     if (_formKey.currentState!.validate()) {
+      // หาชื่อคลังจาก code
+      final warehouse = mockWarehouseList.firstWhere(
+        (w) => w['code'] == _selectedWarehouseCode,
+        orElse: () => {},
+      );
       Navigator.pop(context, {
         "code": _codeController.text,
         "name": _nameController.text,
         "category": _categoryController.text,
         "unit": _unitController.text,
         "stock": int.tryParse(_stockController.text) ?? 0,
-        "warehouse": _warehouseController.text,
+        "warehouseCode": _selectedWarehouseCode ?? "",
+        "warehouse": warehouse['name'] ?? "",
         "remark": _remarkController.text,
       });
     }
@@ -127,20 +134,30 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 decoration: const InputDecoration(labelText: "จำนวนคงเหลือ"),
                 keyboardType: TextInputType.number,
               ),
-              TextFormField(
-                controller: _warehouseController,
-                decoration: const InputDecoration(labelText: "คลัง/สถานที่จัดเก็บ"),
+              // <<<<<<<<<<<<<< คลัง Dropdown >>>>>>>>>>>>>
+              DropdownButtonFormField<String>(
+                value: _selectedWarehouseCode,
+                decoration: const InputDecoration(
+                  labelText: "คลัง/สถานที่จัดเก็บ",
+                ),
+                items: mockWarehouseList.map((w) {
+                  return DropdownMenuItem<String>(
+                    value: w['code'],
+                    child: Text("${w['name']} (${w['location']})"),
+                  );
+                }).toList(),
+                onChanged: (v) =>
+                    setState(() => _selectedWarehouseCode = v ?? ""),
+                validator: (v) => v == null || v.isEmpty ? "เลือกคลัง" : null,
               ),
+              // <<<<<<<<<<<<<< /คลัง Dropdown >>>>>>>>>>>>>
               TextFormField(
                 controller: _remarkController,
                 decoration: const InputDecoration(labelText: "หมายเหตุ"),
                 maxLines: 2,
               ),
               const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _save,
-                child: const Text("บันทึก"),
-              ),
+              ElevatedButton(onPressed: _save, child: const Text("บันทึก")),
             ],
           ),
         ),

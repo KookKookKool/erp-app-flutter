@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
+import 'package:erp_app/utils/mock_data.dart';
 
 class StockMovementFormScreen extends StatefulWidget {
   final Map<String, dynamic>? movement;
@@ -12,11 +11,12 @@ class StockMovementFormScreen extends StatefulWidget {
 
 class _StockMovementFormScreenState extends State<StockMovementFormScreen> {
   final _formKey = GlobalKey<FormState>();
+
   String type = "IN";
+  String? selectedWarehouse;
+  String? selectedProduct;
   final _dateController = TextEditingController();
   final _docNoController = TextEditingController();
-  final _warehouseController = TextEditingController();
-  final _productController = TextEditingController();
   final _qtyController = TextEditingController();
   final _unitController = TextEditingController();
   final _remarkController = TextEditingController();
@@ -25,14 +25,25 @@ class _StockMovementFormScreenState extends State<StockMovementFormScreen> {
   void initState() {
     super.initState();
     if (widget.movement != null) {
-      type = widget.movement!["type"] ?? "IN";
-      _dateController.text = widget.movement!["date"] ?? "";
-      _docNoController.text = widget.movement!["docNo"] ?? "";
-      _warehouseController.text = widget.movement!["warehouse"] ?? "";
-      _productController.text = widget.movement!["product"] ?? "";
-      _qtyController.text = widget.movement!["qty"]?.toString() ?? "";
-      _unitController.text = widget.movement!["unit"] ?? "";
-      _remarkController.text = widget.movement!["remark"] ?? "";
+      final m = widget.movement!;
+      type = m["type"] ?? "IN";
+      _dateController.text = m["date"] ?? "";
+      _docNoController.text = m["docNo"] ?? "";
+
+      // set dropdown values as code
+      selectedWarehouse = getWarehouseCodeByName(m["warehouse"]);
+      selectedProduct = getProductCodeByName(m["product"]);
+
+      _qtyController.text = m["qty"]?.toString() ?? "";
+      _unitController.text = m["unit"] ?? "";
+      _remarkController.text = m["remark"] ?? "";
+    } else {
+      // New movement - generate docNo
+      type = "IN";
+      _dateController.text = DateTime.now().toIso8601String().substring(0, 10);
+      _docNoController.text = generateDocNo("IN");
+      selectedWarehouse = null;
+      selectedProduct = null;
     }
   }
 
@@ -40,100 +51,97 @@ class _StockMovementFormScreenState extends State<StockMovementFormScreen> {
   void dispose() {
     _dateController.dispose();
     _docNoController.dispose();
-    _warehouseController.dispose();
-    _productController.dispose();
     _qtyController.dispose();
     _unitController.dispose();
     _remarkController.dispose();
     super.dispose();
   }
 
+  // Helper for warehouse
+  String? getWarehouseCodeByName(String? name) {
+    if (name == null) return null;
+    final found = mockWarehouseList.firstWhere(
+      (w) => w["name"] == name,
+      orElse: () => {},
+    );
+    return found["code"];
+  }
+
+  // Helper for product
+  String? getProductCodeByName(String? name) {
+    if (name == null) return null;
+    final found = mockProductList.firstWhere(
+      (p) => p["name"] == name,
+      orElse: () => {},
+    );
+    return found["code"];
+  }
+
+  String? getWarehouseNameByCode(String? code) {
+    if (code == null) return null;
+    final found = mockWarehouseList.firstWhere(
+      (w) => w["code"] == code,
+      orElse: () => {},
+    );
+    return found["name"];
+  }
+
+  String? getProductNameByCode(String? code) {
+    if (code == null) return null;
+    final found = mockProductList.firstWhere(
+      (p) => p["code"] == code,
+      orElse: () => {},
+    );
+    return found["name"];
+  }
+
+  // DocNo generator
+  String generateDocNo(String t) {
+    // t = IN / OUT / TRANSFER
+    final prefix = t == "IN"
+        ? "IN"
+        : t == "OUT"
+            ? "OUT"
+            : "TRF";
+    // Year in short (eg. 24)
+    final y = DateTime.now().year % 100;
+    // หาเลขล่าสุด
+    final all = mockMovementList
+        .where((m) => (m["docNo"] ?? "").toString().startsWith(prefix + "-$y"))
+        .toList();
+    final nums = all
+        .map((m) => int.tryParse(m["docNo"]?.toString().split('-').last ?? "0") ?? 0)
+        .toList();
+    final next = nums.isEmpty ? 1 : (nums.reduce((a, b) => a > b ? a : b) + 1);
+    final docNo = "$prefix-$y${next.toString().padLeft(4, '0')}";
+    // เช็คซ้ำ
+    final exists = mockMovementList.any((m) => m["docNo"] == docNo);
+    return exists ? "$prefix-$y${(next + 1).toString().padLeft(4, '0')}" : docNo;
+  }
+
   void _save() {
     if (_formKey.currentState!.validate()) {
-      Navigator.pop(context, {
+      final whName = getWarehouseNameByCode(selectedWarehouse);
+      final pName = getProductNameByCode(selectedProduct);
+      final result = {
         "type": type,
         "date": _dateController.text,
         "docNo": _docNoController.text,
-        "warehouse": _warehouseController.text,
-        "product": _productController.text,
+        "warehouse": whName ?? "",
+        "product": pName ?? "",
         "qty": int.tryParse(_qtyController.text) ?? 0,
         "unit": _unitController.text,
         "remark": _remarkController.text,
-      });
+      };
+      Navigator.pop(context, result);
     }
-  }
-
-  void _delete() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("ยืนยันลบรายการ"),
-        content: const Text("ต้องการลบใช่หรือไม่?"),
-        actions: [
-          TextButton(
-            child: const Text("ยกเลิก"),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-          TextButton(
-            child: const Text("ลบ", style: TextStyle(color: Colors.red)),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-        ],
-      ),
-    );
-    if (confirm == true) {
-      Navigator.pop(context, 'delete');
-    }
-  }
-
-  Future<void> _exportPDF() async {
-    if (widget.movement == null) return;
-    final mv = widget.movement!;
-    final pdf = pw.Document();
-    pdf.addPage(
-      pw.Page(
-        build: (context) => pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text("เอกสารรับ/จ่าย/โอนสินค้า", style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-            pw.SizedBox(height: 14),
-            pw.Text("เลขที่: ${mv['docNo'] ?? ''}"),
-            pw.Text("วันที่: ${mv['date'] ?? ''}"),
-            pw.Text("ประเภท: ${mv['type'] == 'IN' ? 'รับเข้า' : mv['type'] == 'OUT' ? 'จ่ายออก' : 'โอนคลัง'}"),
-            pw.Text("คลัง: ${mv['warehouse'] ?? ''}"),
-            pw.Text("สินค้า: ${mv['product'] ?? ''}"),
-            pw.Text("จำนวน: ${mv['qty'] ?? ''} ${mv['unit'] ?? ''}"),
-            if ((mv['remark'] ?? '').toString().isNotEmpty)
-              pw.Text("หมายเหตุ: ${mv['remark']}"),
-          ],
-        ),
-      ),
-    );
-    await Printing.layoutPdf(
-      onLayout: (format) async => pdf.save(),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isEdit = widget.movement != null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? "แก้ไขรายการ" : "รับ/จ่าย/โอนใหม่"),
-        actions: isEdit
-            ? [
-                IconButton(
-                  icon: const Icon(Icons.picture_as_pdf),
-                  tooltip: "ส่งออก PDF รายการนี้",
-                  onPressed: _exportPDF,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  tooltip: "ลบรายการนี้",
-                  onPressed: _delete,
-                ),
-              ]
-            : null,
+        title: Text(widget.movement != null ? "แก้ไขรายการ" : "รับ/จ่าย/โอนใหม่"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -149,7 +157,12 @@ class _StockMovementFormScreenState extends State<StockMovementFormScreen> {
                   DropdownMenuItem(value: "OUT", child: Text("จ่ายออก")),
                   DropdownMenuItem(value: "TRANSFER", child: Text("โอนคลัง")),
                 ],
-                onChanged: (v) => setState(() => type = v ?? "IN"),
+                onChanged: (v) {
+                  setState(() {
+                    type = v ?? "IN";
+                    _docNoController.text = generateDocNo(type);
+                  });
+                },
               ),
               TextFormField(
                 controller: _dateController,
@@ -159,20 +172,54 @@ class _StockMovementFormScreenState extends State<StockMovementFormScreen> {
               TextFormField(
                 controller: _docNoController,
                 decoration: const InputDecoration(labelText: "เลขที่เอกสาร"),
+                enabled: false,
               ),
-              TextFormField(
-                controller: _warehouseController,
+              DropdownButtonFormField<String>(
+                value: selectedWarehouse,
+                isExpanded: true,
                 decoration: const InputDecoration(labelText: "คลัง/โกดัง"),
+                items: mockWarehouseList
+                    .where((w) => w["code"] != null && w["name"] != null)
+                    .map(
+                      (w) => DropdownMenuItem<String>(
+                        value: w["code"],
+                        child: Text("${w["name"]} (${w["code"]})"),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) => setState(() => selectedWarehouse = v),
+                validator: (v) => v == null || v.isEmpty ? "เลือกคลัง/โกดัง" : null,
               ),
-              TextFormField(
-                controller: _productController,
+              DropdownButtonFormField<String>(
+                value: selectedProduct,
+                isExpanded: true,
                 decoration: const InputDecoration(labelText: "สินค้า"),
-                validator: (v) => v == null || v.isEmpty ? "จำเป็น" : null,
+                items: mockProductList
+                    .where((p) => p["code"] != null && p["name"] != null)
+                    .map(
+                      (p) => DropdownMenuItem<String>(
+                        value: p["code"],
+                        child: Text("${p["name"]} (${p["code"]})"),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) {
+                  setState(() {
+                    selectedProduct = v;
+                    // fill unit if exists
+                    final found = mockProductList.firstWhere(
+                        (p) => p["code"] == v,
+                        orElse: () => {});
+                    _unitController.text = found["unit"] ?? "";
+                  });
+                },
+                validator: (v) => v == null || v.isEmpty ? "เลือกสินค้า" : null,
               ),
               TextFormField(
                 controller: _qtyController,
                 decoration: const InputDecoration(labelText: "จำนวน"),
                 keyboardType: TextInputType.number,
+                validator: (v) => v == null || v.isEmpty ? "จำเป็น" : null,
               ),
               TextFormField(
                 controller: _unitController,

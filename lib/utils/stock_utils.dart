@@ -17,7 +17,38 @@ List<Map<String, dynamic>> productStock = [
 ];
 
 /// Movement log — ประวัติ IN/OUT/TRANSFER
-List<Map<String, dynamic>> movementLog = [];
+List<Map<String, dynamic>> movementLog = [
+  {
+    "type": "IN",
+    "date": "2024-06-19",
+    "docNo": "IN-240001",
+    "warehouse": "คลังหลัก",
+    "product": "สมุดโน๊ต A5",
+    "qty": 50,
+    "unit": "เล่ม",
+    "remark": "รับเข้า (สั่งซื้อ)",
+  },
+  {
+    "type": "OUT",
+    "date": "2024-06-18",
+    "docNo": "OUT-240001",
+    "warehouse": "คลังสาขา 1",
+    "product": "น้ำดื่ม 600ml",
+    "qty": 10,
+    "unit": "ขวด",
+    "remark": "เบิกใช้งานกิจกรรม",
+  },
+  {
+    "type": "TRANSFER",
+    "date": "2024-06-17",
+    "docNo": "TRF-240001",
+    "warehouse": "คลังหลัก → คลังสาขา 1",
+    "product": "ปากกาเจล",
+    "qty": 20,
+    "unit": "ด้าม",
+    "remark": "โอนย้ายคลัง",
+  },
+];
 
 // ====================
 // STOCK UTILS

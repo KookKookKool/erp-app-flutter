@@ -24,11 +24,13 @@ class CheckInButton extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         onPressed: onPressed,
-        child: Text(label, style: const TextStyle(fontSize: 18)),
+        child: Text(label, style: const TextStyle(fontSize: 14)),
       ),
     );
   }

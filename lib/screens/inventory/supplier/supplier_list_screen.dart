@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'supplier_form_screen.dart';
+import 'package:erp_app/utils/mock_data.dart';
 
 class SupplierListScreen extends StatefulWidget {
   const SupplierListScreen({super.key});
@@ -8,24 +9,8 @@ class SupplierListScreen extends StatefulWidget {
 }
 
 class _SupplierListScreenState extends State<SupplierListScreen> {
-  List<Map<String, dynamic>> suppliers = [
-    {
-      "code": "S001",
-      "name": "บริษัท สมาร์ทซัพพลาย จำกัด",
-      "phone": "086-111-2222",
-      "email": "contact@smartsupply.co.th",
-      "address": "12/34 ถ.สุขุมวิท บางนา กทม.",
-      "remark": "VAT Registered"
-    },
-    {
-      "code": "S002",
-      "name": "รุ่งเรืองการค้า",
-      "phone": "098-222-3333",
-      "email": "rung@example.com",
-      "address": "89/9 หมู่ 7 เชียงใหม่",
-      "remark": ""
-    },
-  ];
+  // ใช้ข้อมูลกลาง mockSupplierList
+  List<Map<String, dynamic>> get suppliers => mockSupplierList;
 
   String searchText = "";
 
@@ -34,9 +19,9 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
     final filtered = suppliers.where((s) {
       if (searchText.isEmpty) return true;
       final q = searchText.toLowerCase();
-      return s.values
-        .whereType<String>()
-        .any((v) => v.toLowerCase().contains(q));
+      return s.values.whereType<String>().any(
+        (v) => v.toLowerCase().contains(q),
+      );
     }).toList();
 
     return Scaffold(
@@ -61,7 +46,9 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
               itemBuilder: (context, i) {
                 final s = filtered[i];
                 return Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   margin: const EdgeInsets.only(bottom: 14),
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -85,7 +72,10 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
                         if ((s["remark"] ?? "").isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(top: 2),
-                            child: Text("หมายเหตุ: ${s["remark"]}", style: const TextStyle(fontSize: 12)),
+                            child: Text(
+                              "หมายเหตุ: ${s["remark"]}",
+                              style: const TextStyle(fontSize: 12),
+                            ),
                           ),
                       ],
                     ),
@@ -102,7 +92,8 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
                           setState(() {
                             suppliers.removeAt(i);
                           });
-                        } else if (result != null && result is Map<String, dynamic>) {
+                        } else if (result != null &&
+                            result is Map<String, dynamic>) {
                           setState(() {
                             suppliers[i] = result;
                           });
@@ -120,7 +111,8 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
                         setState(() {
                           suppliers.removeAt(i);
                         });
-                      } else if (result != null && result is Map<String, dynamic>) {
+                      } else if (result != null &&
+                          result is Map<String, dynamic>) {
                         setState(() {
                           suppliers[i] = result;
                         });

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'product_form_screen.dart';
+import 'package:erp_app/utils/mock_data.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -8,35 +9,29 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
-  List<Map<String, dynamic>> products = [
-    {
-      "code": "P001",
-      "name": "สมุดโน๊ต A5",
-      "category": "เครื่องเขียน",
-      "stock": 80,
-      "unit": "เล่ม",
-      "remark": ""
-    },
-    {
-      "code": "P002",
-      "name": "ปากกาเจล",
-      "category": "เครื่องเขียน",
-      "stock": 120,
-      "unit": "ด้าม",
-      "remark": "สินค้าขายดี"
-    },
-  ];
-
   String searchText = "";
+
+  List<Map<String, dynamic>> get products => mockProductList;
 
   @override
   Widget build(BuildContext context) {
+    // ถ้ามีสินค้าใหม่โครงสร้างไม่ครบ ให้เติม field ว่างๆ (เพื่อรองรับ schema เดิม)
+    for (final p in products) {
+      p["category"] ??= "";
+      p["stock"] ??= p["qty"] ?? 0;
+      p["unit"] ??= "";
+      p["remark"] ??= "";
+    }
+
     final filtered = products.where((p) {
       if (searchText.isEmpty) return true;
       final q = searchText.toLowerCase();
-      return p.values
-        .whereType<String>()
-        .any((v) => v.toLowerCase().contains(q));
+      return [
+        p["name"] ?? "",
+        p["code"] ?? "",
+        p["category"] ?? "",
+        p["remark"] ?? "",
+      ].any((v) => v.toString().toLowerCase().contains(q));
     }).toList();
 
     return Scaffold(
@@ -61,7 +56,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
               itemBuilder: (context, i) {
                 final p = filtered[i];
                 return Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   margin: const EdgeInsets.only(bottom: 14),
                   child: ListTile(
                     leading: const CircleAvatar(
@@ -77,11 +74,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       children: [
                         Text("รหัส: ${p["code"]}"),
                         Text("หมวดหมู่: ${p["category"]}"),
-                        Text("คงเหลือ: ${p["stock"]} ${p["unit"]}"),
+                        Text("คงเหลือ: ${p["stock"] ?? p["qty"]} ${p["unit"]}"),
                         if ((p["remark"] ?? "").isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(top: 2),
-                            child: Text("หมายเหตุ: ${p["remark"]}", style: const TextStyle(fontSize: 12)),
+                            child: Text(
+                              "หมายเหตุ: ${p["remark"]}",
+                              style: const TextStyle(fontSize: 12),
+                            ),
                           ),
                       ],
                     ),
@@ -96,11 +96,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         );
                         if (result == 'delete') {
                           setState(() {
-                            products.removeAt(i);
+                            products.remove(p);
                           });
                         } else if (result != null && result is Map<String, dynamic>) {
                           setState(() {
-                            products[i] = result;
+                            // update ทั้ง global และ filtered list
+                            final idx = products.indexOf(p);
+                            products[idx] = result;
                           });
                         }
                       },
@@ -114,11 +116,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       );
                       if (result == 'delete') {
                         setState(() {
-                          products.removeAt(i);
+                          products.remove(p);
                         });
                       } else if (result != null && result is Map<String, dynamic>) {
                         setState(() {
-                          products[i] = result;
+                          final idx = products.indexOf(p);
+                          products[idx] = result;
                         });
                       }
                     },
@@ -138,7 +141,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
             MaterialPageRoute(builder: (_) => const ProductFormScreen()),
           );
           if (newP != null) {
-            setState(() => products.add(newP));
+            setState(() {
+              products.add(newP);
+            });
           }
         },
       ),

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'profile_card.dart';
 import 'time_card.dart';
 import 'checkin_button.dart';
-import '../../widgets/app_drawer.dart';
-import '../hrm/attendance/leave_request_screen.dart';
+import 'package:erp_app/widgets/app_drawer.dart';
+import 'package:erp_app/screens/hrm/attendance/leave_request_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -65,42 +65,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 32),
           TimeCard(checkIn: checkInTime, checkOut: checkOutTime),
           const SizedBox(height: 24),
-          CheckInButton(
-            checkIn: checkInTime,
-            checkOut: checkOutTime,
-            onPressed: handleCheckInOut,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.event_note),
-                label: const Text("ลางาน"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange, // เปลี่ยนสีปุ่มได้
+          // <<<-- ปุ่มบันทึกเวลา & ลางาน อยู่แถวเดียวกัน
+          Row(
+            children: [
+              // ปุ่มบันทึกเวลา (ซ้าย)
+              Expanded(
+                child: CheckInButton(
+                  checkIn: checkInTime,
+                  checkOut: checkOutTime,
+                  onPressed: handleCheckInOut,
                 ),
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => LeaveRequestScreen(
-                        empId: mockProfile['empId'] ?? '',
-                        empName: mockProfile['name'] ?? '',
-                        // ส่งข้อมูลอื่นๆ ที่จำเป็น
-                      ),
-                    ),
-                  );
-                  if (result != null && result is Map<String, dynamic>) {
-                    // TODO: บันทึก/ส่ง result ไปที่โมดูลลา
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("ส่งคำขอลาสำเร็จ")),
-                    );
-                  }
-                },
               ),
-            ),
+              const SizedBox(width: 12),
+              // ปุ่มลางาน (ขวา)
+              Expanded(
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.event_note),
+                  label: const Text("ลางาน"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LeaveRequestScreen(
+                          empId: mockProfile['empId'] ?? '',
+                          empName: mockProfile['name'] ?? '',
+                        ),
+                      ),
+                    );
+                    if (result != null && result is Map<String, dynamic>) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("ส่งคำขอลาสำเร็จ")),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
+          // --- จบ Row ปุ่มคู่
         ],
       ),
     );

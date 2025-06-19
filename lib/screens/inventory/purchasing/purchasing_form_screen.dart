@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:erp_app/utils/mock_data.dart';
 
 class PurchasingFormScreen extends StatefulWidget {
-  final Map<String, dynamic>? order;
-  const PurchasingFormScreen({super.key, this.order});
+  final Map<String, dynamic>? po;
+  const PurchasingFormScreen({super.key, this.po}); // po อาจเป็น null
 
   @override
   State<PurchasingFormScreen> createState() => _PurchasingFormScreenState();
@@ -12,21 +13,33 @@ class _PurchasingFormScreenState extends State<PurchasingFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _poNoController = TextEditingController();
   final _dateController = TextEditingController();
-  final _supplierController = TextEditingController();
   final _totalController = TextEditingController();
-  String status = "รอดำเนินการ";
   final _remarkController = TextEditingController();
+
+  String status = "รอดำเนินการ";
+  String? selectedSupplier;
+
+  bool get isEdit => widget.po != null;
 
   @override
   void initState() {
     super.initState();
-    if (widget.order != null) {
-      _poNoController.text = widget.order!["poNo"] ?? "";
-      _dateController.text = widget.order!["date"] ?? "";
-      _supplierController.text = widget.order!["supplier"] ?? "";
-      _totalController.text = widget.order!["total"]?.toString() ?? "";
-      status = widget.order!["status"] ?? "รอดำเนินการ";
-      _remarkController.text = widget.order!["remark"] ?? "";
+    if (widget.po != null) {
+      _poNoController.text = widget.po!["poNo"] ?? "";
+      _dateController.text = widget.po!["date"] ?? "";
+      selectedSupplier = widget.po!["supplier"];
+      _totalController.text = widget.po!["total"]?.toString() ?? "";
+      // ตรวจสอบว่า status ตรงกับรายการใน dropdown
+      final validStatuses = [
+        "รอดำเนินการ",
+        "อนุมัติ",
+        "รับบางส่วน",
+        "รับครบ",
+        "ยกเลิก",
+      ];
+      final poStatus = widget.po!["status"] ?? "รอดำเนินการ";
+      status = validStatuses.contains(poStatus) ? poStatus : "รอดำเนินการ";
+      _remarkController.text = widget.po!["remark"] ?? "";
     }
   }
 
@@ -34,7 +47,6 @@ class _PurchasingFormScreenState extends State<PurchasingFormScreen> {
   void dispose() {
     _poNoController.dispose();
     _dateController.dispose();
-    _supplierController.dispose();
     _totalController.dispose();
     _remarkController.dispose();
     super.dispose();
@@ -45,10 +57,11 @@ class _PurchasingFormScreenState extends State<PurchasingFormScreen> {
       Navigator.pop(context, {
         "poNo": _poNoController.text,
         "date": _dateController.text,
-        "supplier": _supplierController.text,
+        "supplier": selectedSupplier,
         "total": int.tryParse(_totalController.text) ?? 0,
         "status": status,
         "remark": _remarkController.text,
+        // เพิ่ม fields อื่นๆที่จำเป็น เช่น items, warehouse
       });
     }
   }
@@ -78,7 +91,6 @@ class _PurchasingFormScreenState extends State<PurchasingFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isEdit = widget.order != null;
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? "แก้ไขใบสั่งซื้อ" : "สร้างใบสั่งซื้อ"),
@@ -100,19 +112,31 @@ class _PurchasingFormScreenState extends State<PurchasingFormScreen> {
             children: [
               TextFormField(
                 controller: _poNoController,
-                decoration: const InputDecoration(labelText: "เลขที่ใบสั่งซื้อ"),
+                decoration: const InputDecoration(
+                  labelText: "เลขที่ใบสั่งซื้อ",
+                ),
                 validator: (v) => v == null || v.isEmpty ? "จำเป็น" : null,
-                enabled: !isEdit, // แก้ไขเลขที่ไม่ได้
+                enabled: !isEdit, // แก้ไขเลขที่ไม่ได้ถ้าแก้ไข
               ),
               TextFormField(
                 controller: _dateController,
-                decoration: const InputDecoration(labelText: "วันที่ (YYYY-MM-DD)"),
+                decoration: const InputDecoration(
+                  labelText: "วันที่ (YYYY-MM-DD)",
+                ),
                 validator: (v) => v == null || v.isEmpty ? "จำเป็น" : null,
               ),
-              TextFormField(
-                controller: _supplierController,
+              DropdownButtonFormField<String>(
+                value: selectedSupplier,
                 decoration: const InputDecoration(labelText: "ซัพพลายเออร์"),
+                isExpanded: true,
+                items: mockSupplierList.map((s) {
+                  return DropdownMenuItem<String>(
+                    value: s["name"],
+                    child: Text(s["name"]),
+                  );
+                }).toList(),
                 validator: (v) => v == null || v.isEmpty ? "จำเป็น" : null,
+                onChanged: (val) => setState(() => selectedSupplier = val),
               ),
               TextFormField(
                 controller: _totalController,
@@ -123,8 +147,16 @@ class _PurchasingFormScreenState extends State<PurchasingFormScreen> {
                 value: status,
                 decoration: const InputDecoration(labelText: "สถานะ"),
                 items: const [
-                  DropdownMenuItem(value: "รอดำเนินการ", child: Text("รอดำเนินการ")),
+                  DropdownMenuItem(
+                    value: "รอดำเนินการ",
+                    child: Text("รอดำเนินการ"),
+                  ),
                   DropdownMenuItem(value: "อนุมัติ", child: Text("อนุมัติ")),
+                  DropdownMenuItem(
+                    value: "รับบางส่วน",
+                    child: Text("รับบางส่วน"),
+                  ),
+                  DropdownMenuItem(value: "รับครบ", child: Text("รับครบ")),
                   DropdownMenuItem(value: "ยกเลิก", child: Text("ยกเลิก")),
                 ],
                 onChanged: (v) => setState(() => status = v ?? "รอดำเนินการ"),
@@ -135,10 +167,7 @@ class _PurchasingFormScreenState extends State<PurchasingFormScreen> {
                 maxLines: 2,
               ),
               const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _save,
-                child: const Text("บันทึก"),
-              ),
+              ElevatedButton(onPressed: _save, child: const Text("บันทึก")),
             ],
           ),
         ),

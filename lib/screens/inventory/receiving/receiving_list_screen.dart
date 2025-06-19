@@ -1,51 +1,80 @@
 import 'package:flutter/material.dart';
 import 'receiving_form_screen.dart';
+import 'package:erp_app/utils/mock_data.dart';
 
 class ReceivingListScreen extends StatefulWidget {
   const ReceivingListScreen({super.key});
+
   @override
   State<ReceivingListScreen> createState() => _ReceivingListScreenState();
 }
 
 class _ReceivingListScreenState extends State<ReceivingListScreen> {
-  List<Map<String, dynamic>> receipts = [
-    {
-      "receiveNo": "RC-240001",
-      "date": "2024-06-24",
-      "poNo": "PO-240002",
-      "supplier": "รุ่งเรืองการค้า",
-      "warehouse": "คลังหลัก",
-      "items": [
-        {"code": "P001", "name": "สมุดโน๊ต A5", "qty": 20, "unit": "เล่ม"},
-        {"code": "P002", "name": "ปากกาเจล", "qty": 15, "unit": "ด้าม"},
-      ],
-      "status": "รับครบ",
-    },
-    {
-      "receiveNo": "RC-240002",
-      "date": "2024-06-25",
-      "poNo": "PO-240001",
-      "supplier": "บริษัท สมาร์ทซัพพลาย จำกัด",
-      "warehouse": "คลังสาขา 1",
-      "items": [
-        {"code": "P003", "name": "น้ำดื่ม", "qty": 5, "unit": "ขวด"},
-      ],
-      "status": "รับบางส่วน",
-    },
-  ];
-
   String searchText = "";
+
+  // PO ที่ “รับครบ” หรือ “รับบางส่วน” เท่านั้น = มีประวัติรับเข้า
+  List<Map<String, dynamic>> get receiptList => mockPOList
+      .where((po) => po["status"] == "รับบางส่วน" || po["status"] == "รับครบ")
+      .toList();
+
+  // PO ที่รับยังไม่ครบ (เอาไว้ให้เลือกตอนจะ “รับสินค้าเข้าใหม่”)
+  List<Map<String, dynamic>> get receivablePOs => mockPOList
+      .where(
+        (po) =>
+            po["status"] == "อนุมัติ" ||
+            (po["status"] == "รับบางส่วน" &&
+                (po["items"] as List).any(
+                  (item) => (item["received"] ?? 0) < item["qty"],
+                )),
+      )
+      .toList();
+
+  void _startReceivingNew() async {
+    if (receivablePOs.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("ไม่มีใบสั่งซื้อที่สามารถรับเข้าได้")),
+      );
+      return;
+    }
+    // Popup ให้เลือก PO ก่อน
+    Map<String, dynamic>? selectedPO = await showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text("เลือก PO ที่จะรับเข้า"),
+        children: receivablePOs
+            .map(
+              (po) => SimpleDialogOption(
+                onPressed: () => Navigator.pop(context, po),
+                child: Text(
+                  "${po["poNo"]} - ${po["supplier"]} (${po["status"]})",
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+    if (selectedPO != null) {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ReceivingFormScreen(po: selectedPO)),
+      );
+      if (result != null && result is Map<String, dynamic>) {
+        setState(() {});
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filtered = receipts.where((r) {
+    final filtered = receiptList.where((rc) {
       if (searchText.isEmpty) return true;
       final q = searchText.toLowerCase();
-      return r.values
-        .whereType<String>()
-        .any((v) => v.toLowerCase().contains(q)) ||
-        (r["items"] as List).any((item) =>
-          item.values.whereType<String>().any((v) => v.toLowerCase().contains(q)));
+      return [
+        rc["poNo"] ?? "",
+        rc["supplier"] ?? "",
+        rc["warehouse"] ?? "",
+        rc["status"] ?? "",
+      ].any((v) => v.toString().toLowerCase().contains(q));
     }).toList();
 
     return Scaffold(
@@ -56,7 +85,7 @@ class _ReceivingListScreenState extends State<ReceivingListScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
             child: TextField(
               decoration: const InputDecoration(
-                hintText: "ค้นหา (เลขที่รับ, PO, Supplier, สินค้า ฯลฯ)",
+                hintText: "ค้นหา (เลขที่รับเข้า/PO, Supplier, คลัง ฯลฯ)",
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
               ),
@@ -64,98 +93,70 @@ class _ReceivingListScreenState extends State<ReceivingListScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(18),
-              itemCount: filtered.length,
-              itemBuilder: (context, i) {
-                final r = filtered[i];
-                return Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: r["status"] == "รับครบ"
-                          ? Colors.green.withOpacity(0.18)
-                          : Colors.orange.withOpacity(0.18),
-                      child: Icon(
-                        Icons.move_to_inbox,
-                        color: r["status"] == "รับครบ" ? Colors.green : Colors.orange,
-                      ),
-                    ),
-                    title: Text(
-                      "${r["receiveNo"]} | PO: ${r["poNo"]}",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("วันที่: ${r["date"]} | คลัง: ${r["warehouse"]}"),
-                        Text("Supplier: ${r["supplier"]}"),
-                        ...((r["items"] as List).map((item) => Text(
-                          "- ${item["name"]} (${item["qty"]} ${item["unit"]})",
-                          style: const TextStyle(fontSize: 13),
-                        ))),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            "สถานะ: ${r["status"]}",
-                            style: TextStyle(
-                              color: r["status"] == "รับครบ" ? Colors.green : Colors.orange,
-                              fontWeight: FontWeight.w600,
-                            ),
+            child: filtered.isEmpty
+                ? const Center(child: Text("ไม่พบข้อมูล"))
+                : ListView.builder(
+                    padding: const EdgeInsets.all(18),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, i) {
+                      final rc = filtered[i];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 14),
+                        child: ListTile(
+                          leading: const CircleAvatar(
+                            backgroundColor: Colors.deepPurple,
+                            child: Icon(Icons.inventory_2, color: Colors.white),
                           ),
-                        ),
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blueGrey),
-                      onPressed: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ReceivingFormScreen(receipt: r),
+                          title: Text(
+                            "PO: ${rc["poNo"]} (${rc["status"] ?? ""})",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                        );
-                        if (result == 'delete') {
-                          setState(() => receipts.removeAt(i));
-                        } else if (result != null && result is Map<String, dynamic>) {
-                          setState(() => receipts[i] = result);
-                        }
-                      },
-                    ),
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ReceivingFormScreen(receipt: r),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Supplier: ${rc["supplier"] ?? "-"}"),
+                              Text("คลัง: ${rc["warehouse"] ?? "-"}"),
+                              Text("วันที่: ${rc["date"] ?? "-"}"),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.orange),
+                            onPressed: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ReceivingFormScreen(po: rc),
+                                ),
+                              );
+                              if (result != null &&
+                                  result is Map<String, dynamic>) {
+                                setState(() {}); // อัปเดตสถานะจาก mockPOList
+                              }
+                            },
+                          ),
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ReceivingFormScreen(po: rc),
+                              ),
+                            );
+                            if (result != null &&
+                                result is Map<String, dynamic>) {
+                              setState(() {});
+                            }
+                          },
                         ),
                       );
-                      if (result == 'delete') {
-                        setState(() => receipts.removeAt(i));
-                      } else if (result != null && result is Map<String, dynamic>) {
-                        setState(() => receipts[i] = result);
-                      }
                     },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add),
         label: const Text("รับสินค้าเข้าใหม่"),
-        onPressed: () async {
-          final newR = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ReceivingFormScreen()),
-          );
-          if (newR != null) {
-            setState(() => receipts.add(newR));
-          }
-        },
+        onPressed: _startReceivingNew,
       ),
     );
   }

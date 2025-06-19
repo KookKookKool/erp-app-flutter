@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'warehouse_form_screen.dart';
+import 'package:erp_app/utils/mock_data.dart';
 
 class WarehouseListScreen extends StatefulWidget {
   const WarehouseListScreen({super.key});
@@ -9,20 +10,8 @@ class WarehouseListScreen extends StatefulWidget {
 }
 
 class _WarehouseListScreenState extends State<WarehouseListScreen> {
-  List<Map<String, dynamic>> warehouses = [
-    {
-      "code": "W001",
-      "name": "คลังหลัก",
-      "location": "สำนักงานใหญ่",
-      "remark": "คลังสินค้าหลักสำหรับบริษัท",
-    },
-    {
-      "code": "W002",
-      "name": "คลังสาขา 1",
-      "location": "บางนา",
-      "remark": "",
-    },
-  ];
+  // เชื่อม mockWarehouseList
+  List<Map<String, dynamic>> get warehouses => mockWarehouseList;
 
   String searchText = "";
 
@@ -31,15 +20,13 @@ class _WarehouseListScreenState extends State<WarehouseListScreen> {
     final filtered = warehouses.where((wh) {
       if (searchText.isEmpty) return true;
       final q = searchText.toLowerCase();
-      return wh.values
-        .whereType<String>()
-        .any((v) => v.toLowerCase().contains(q));
+      return wh.values.whereType<String>().any(
+        (v) => v.toLowerCase().contains(q),
+      );
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("คลัง/โกดังสินค้า"),
-      ),
+      appBar: AppBar(title: const Text("คลัง/โกดังสินค้า")),
       body: Column(
         children: [
           Padding(
@@ -60,15 +47,24 @@ class _WarehouseListScreenState extends State<WarehouseListScreen> {
               itemBuilder: (context, i) {
                 final wh = filtered[i];
                 return Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 10,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.store_mall_directory, color: Colors.deepPurple, size: 38),
+                        Icon(
+                          Icons.store_mall_directory,
+                          color: Colors.deepPurple,
+                          size: 38,
+                        ),
                         const SizedBox(width: 18),
                         Expanded(
                           child: Column(
@@ -77,7 +73,10 @@ class _WarehouseListScreenState extends State<WarehouseListScreen> {
                             children: [
                               Text(
                                 wh["name"],
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                ),
                               ),
                               const SizedBox(height: 2),
                               Text("รหัส: ${wh["code"]}"),
@@ -87,7 +86,10 @@ class _WarehouseListScreenState extends State<WarehouseListScreen> {
                                   padding: const EdgeInsets.only(top: 4),
                                   child: Text(
                                     wh["remark"],
-                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
                             ],
@@ -99,14 +101,16 @@ class _WarehouseListScreenState extends State<WarehouseListScreen> {
                             final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => WarehouseFormScreen(warehouse: wh),
+                                builder: (_) =>
+                                    WarehouseFormScreen(warehouse: wh),
                               ),
                             );
                             if (result == 'delete') {
                               setState(() {
                                 warehouses.removeAt(i);
                               });
-                            } else if (result != null && result is Map<String, dynamic>) {
+                            } else if (result != null &&
+                                result is Map<String, dynamic>) {
                               setState(() {
                                 warehouses[i] = result;
                               });
