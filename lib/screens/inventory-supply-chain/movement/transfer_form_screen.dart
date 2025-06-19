@@ -69,8 +69,9 @@ class _StockTransferFormScreenState extends State<StockTransferFormScreen> {
                       onChanged: (val) => setState(() {
                         sourceWarehouse = val;
                         // รีเซ็ตคลังปลายทางถ้าเผลอเลือกซ้ำ
-                        if (destWarehouse == sourceWarehouse)
+                        if (destWarehouse == sourceWarehouse) {
                           destWarehouse = null;
+                        }
                       }),
                     ),
                   ),

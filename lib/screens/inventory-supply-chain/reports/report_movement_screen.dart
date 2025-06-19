@@ -36,7 +36,7 @@ class ReportMovementScreen extends StatelessWidget {
                   child: ListTile(
                     leading: Icon(Icons.swap_horiz, color: typeColor),
                     title: Text(
-                        "${m["productName"] ?? m["product"]} (${typeLabel}) - ${m["qty"]}"),
+                        "${m["productName"] ?? m["product"]} ($typeLabel) - ${m["qty"]}"),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

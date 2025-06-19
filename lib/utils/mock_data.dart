@@ -1,6 +1,7 @@
 // lib/utils/mock_data.dart
 
 /// Mock Data สำหรับทั้งระบบ (นำไปใช้ได้ทุกหน้า)
+library;
 
 /// =========== PRODUCT =============
 List<Map<String, dynamic>> mockProductList = [
@@ -137,14 +138,73 @@ List<Map<String, dynamic>> mockReceivingList = [
 ];
 
 List<Map<String, dynamic>> mockMovementList = [
-   {
-     "date": "2024-06-19",
-     "type": "IN", // "OUT", "TRANSFER"
-     "product": "P001",
-     "productName": "สมุดโน๊ต A5",
-     "qty": 10,
-     "warehouse": "คลังหลัก",
-     "remark": "รับเข้า",
-   },
+  {
+    "date": "2024-06-19",
+    "type": "IN", // "OUT", "TRANSFER"
+    "product": "P001",
+    "productName": "สมุดโน๊ต A5",
+    "qty": 10,
+    "warehouse": "คลังหลัก",
+    "remark": "รับเข้า",
+  },
 ];
 
+/// =========== AP (เจ้าหนี้) =============
+List<Map<String, dynamic>> mockAPList = [
+  {
+    "apNo": "AP-240001",
+    "date": "2024-06-20",
+    "supplier": "S001", // <-- ใส่เป็นรหัส
+    "amount": 1500.0,
+    "dueDate": "2024-07-20",
+    "status": "ค้างจ่าย",
+    "poNo": "PO-240001",
+    "items": [
+      {"name": "สมุดโน๊ต A5", "qty": 10, "unit": "เล่ม", "price": 50.0},
+    ],
+  },
+];
+
+/// =========== AR (ลูกหนี้) =============
+List<Map<String, dynamic>> mockARList = [
+  {
+    "arNo": "AR-240001",
+    "date": "2024-06-18",
+    "customer": "C001", // ใช้รหัสลูกค้า
+    "amount": 3000.0,
+    "dueDate": "2024-07-18",
+    "status": "ค้างรับ", // "ค้างรับ", "รับเงินแล้ว"
+    "soNo": "SO-240001",
+    "items": [
+      {"name": "น้ำดื่ม", "qty": 30, "unit": "ขวด", "price": 100.0},
+    ],
+  },
+];
+
+/// =========== CUSTOMER (ลูกค้า) =============
+List<Map<String, dynamic>> mockCustomerList = [
+  {
+    "code": "C001",
+    "name": "บริษัท ไทยเทค จำกัด",
+    "phone": "081-123-4567",
+    "email": "info@thaitech.co.th",
+    "address": "123 หมู่ 5 ถ.พระราม 2 บางขุนเทียน กทม.",
+    "remark": "กลุ่มลูกค้าหลัก",
+  },
+  {
+    "code": "C002",
+    "name": "ร้านโกลเด้นมาร์ท",
+    "phone": "082-222-3333",
+    "email": "goldenmart@gmail.com",
+    "address": "50/88 ถ.สุขุมวิท พัทยา ชลบุรี",
+    "remark": "",
+  },
+  {
+    "code": "C003",
+    "name": "บริษัท บิ๊กวัน จำกัด",
+    "phone": "083-444-5555",
+    "email": "contact@bigone.co.th",
+    "address": "77/12 ถ.กิ่งแก้ว สมุทรปราการ",
+    "remark": "ลูกค้าส่งประจำ",
+  },
+];

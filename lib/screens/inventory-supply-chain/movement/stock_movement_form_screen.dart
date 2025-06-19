@@ -107,7 +107,7 @@ class _StockMovementFormScreenState extends State<StockMovementFormScreen> {
     final y = DateTime.now().year % 100;
     // หาเลขล่าสุด
     final all = mockMovementList
-        .where((m) => (m["docNo"] ?? "").toString().startsWith(prefix + "-$y"))
+        .where((m) => (m["docNo"] ?? "").toString().startsWith("$prefix-$y"))
         .toList();
     final nums = all
         .map((m) => int.tryParse(m["docNo"]?.toString().split('-').last ?? "0") ?? 0)

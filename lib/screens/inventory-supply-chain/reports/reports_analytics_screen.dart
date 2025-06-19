@@ -5,9 +5,9 @@ import 'report_stock_summary_screen.dart';
 import 'report_low_stock_screen.dart';
 import 'report_movement_screen.dart';
 import 'report_po_screen.dart';
-import 'package:erp_app/screens/inventory/supplier/supplier_list_screen.dart';
-import 'package:erp_app/screens/inventory/warehouse/warehouse_list_screen.dart';
-import 'package:erp_app/screens/inventory/product/product_list_screen.dart';
+import 'package:erp_app/screens/inventory-supply-chain/supplier/supplier_list_screen.dart';
+import 'package:erp_app/screens/inventory-supply-chain/warehouse/warehouse_list_screen.dart';
+import 'package:erp_app/screens/inventory-supply-chain/product/product_list_screen.dart';
 
 class ReportsAnalyticsScreen extends StatelessWidget {
   const ReportsAnalyticsScreen({super.key});

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:erp_app/screens/hrm/hrm_home_screen.dart';
-import 'package:erp_app/screens/inventory/inventory_home_screen.dart';
+import 'package:erp_app/screens/inventory-supply-chain/inventory_home_screen.dart';
+import 'package:erp_app/screens/accounting/accounting_home_screen.dart';
+
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -24,7 +26,10 @@ class AppDrawer extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.dashboard),
               title: const Text("Dashboard"),
-              onTap: () => Navigator.pop(context),
+              // onTap: () => Navigator.pop(context), // ถ้ามีหน้า dashboard จริงให้เปิดหน้านั้น
+              onTap: () {
+                Navigator.pop(context); // หรือเพิ่มหน้า dashboard ตามต้องการ
+              },
             ),
             ListTile(
               leading: const Icon(Icons.people),
@@ -36,16 +41,57 @@ class AppDrawer extends StatelessWidget {
               },
             ),
             ListTile(
-  leading: Icon(Icons.inventory_2),
-  title: Text('Inventory & Supply Chain'),
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const InventoryHomeScreen()),
-    );
-  },
-),
-
+              leading: const Icon(Icons.inventory_2),
+              title: const Text('Inventory & Supply Chain'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const InventoryHomeScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.account_balance_wallet),
+              title: const Text('Accounting / Finance'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AccountingHomeScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.shopping_cart),
+              title: const Text('Sales / CRM'),
+              // ยังไม่มีหน้านี้ - ขึ้น SnackBar ว่า Coming Soon
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Sales / CRM: Coming Soon!")),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.analytics),
+              title: const Text('Dashboard & Analytics'),
+              // ยังไม่มีหน้านี้ - ขึ้น SnackBar ว่า Coming Soon
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Dashboard & Analytics: Coming Soon!")),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.folder_copy),
+              title: const Text('Project / Workflow'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Project / Workflow: Coming Soon!")),
+                );
+              },
+            ),
             const Spacer(),
             const Divider(),
             ListTile(
