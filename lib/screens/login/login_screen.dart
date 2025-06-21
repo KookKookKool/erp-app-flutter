@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:erp_app/screens/dashboard/dashboard_screen.dart';
+import 'package:erp_app/screens/home/myprofile_screen.dart';
 
 // ทำการ mock ข้อมูลบัญชีผู้ใช้สำหรับทดสอบ
 // ในการพัฒนาแอปพลิเคชันจริง ควรเชื่อมต่อกับ backend หรือฐานข้อมูลจริง

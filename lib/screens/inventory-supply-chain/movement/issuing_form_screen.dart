@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:erp_app/utils/stock_utils.dart';
+import 'package:erp_app/utils/mock_data.dart';
 
 class IssuingFormScreen extends StatefulWidget {
   const IssuingFormScreen({super.key});
@@ -31,7 +31,7 @@ class _IssuingFormScreenState extends State<IssuingFormScreen> {
                   labelText: "เลือกสินค้า",
                   border: OutlineInputBorder(),
                 ),
-                items: productStock.map<DropdownMenuItem<String>>((p) {
+                items: mockProductList.map<DropdownMenuItem<String>>((p) {
                   return DropdownMenuItem<String>(
                     value: p["code"],
                     child: Text(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:erp_app/utils/stock_utils.dart'; // สมมติคุณมี utils stock
+import 'package:erp_app/utils/mock_data.dart'; 
 
 class StockTransferFormScreen extends StatefulWidget {
   const StockTransferFormScreen({super.key});
@@ -40,7 +40,7 @@ class _StockTransferFormScreenState extends State<StockTransferFormScreen> {
                   labelText: "เลือกสินค้า",
                   border: OutlineInputBorder(),
                 ),
-                items: productStock.map<DropdownMenuItem<String>>((p) {
+                items: mockProductList.map<DropdownMenuItem<String>>((p) {
                   return DropdownMenuItem(
                     value: p["code"],
                     child: Text(

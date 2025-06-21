@@ -59,38 +59,26 @@ class _PurchasingListScreenState extends State<PurchasingListScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-            child: Row(
-              children: [
-                const Text(
-                  "สถานะ:",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    isExpanded: true,
-                    value: statusFilter,
-                    items: statusOptions
-                        .map(
-                          (s) => DropdownMenuItem(
-                            value: s["value"],
-                            child: Text(s["label"]!),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (val) =>
-                        setState(() => statusFilter = val ?? "all"),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
+            child: DropdownButtonFormField<String>(
+              value: statusFilter,
+              items: statusOptions
+                  .map(
+                    (s) => DropdownMenuItem(
+                      value: s["value"],
+                      child: Text(s["label"]!),
                     ),
-                  ),
+                  )
+                  .toList(),
+              onChanged: (val) => setState(() => statusFilter = val ?? "all"),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
                 ),
-              ],
+                labelText: "สถานะ",
+              ),
             ),
           ),
           Expanded(

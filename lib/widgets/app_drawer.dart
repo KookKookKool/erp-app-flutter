@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:erp_app/screens/hrm/hrm_home_screen.dart';
 import 'package:erp_app/screens/inventory-supply-chain/inventory_home_screen.dart';
 import 'package:erp_app/screens/accounting/accounting_home_screen.dart';
+import 'package:erp_app/screens/sales-crm/sales_home_screen.dart';
+import 'package:erp_app/screens/dashboard/dashboard_home_screen.dart';
 
 
 class AppDrawer extends StatelessWidget {
@@ -24,8 +26,8 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.dashboard),
-              title: const Text("Dashboard"),
+              leading: const Icon(Icons.account_circle),
+              title: const Text("My Profile"),
               // onTap: () => Navigator.pop(context), // ถ้ามีหน้า dashboard จริงให้เปิดหน้านั้น
               onTap: () {
                 Navigator.pop(context); // หรือเพิ่มหน้า dashboard ตามต้องการ
@@ -65,9 +67,9 @@ class AppDrawer extends StatelessWidget {
               title: const Text('Sales / CRM'),
               // ยังไม่มีหน้านี้ - ขึ้น SnackBar ว่า Coming Soon
               onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Sales / CRM: Coming Soon!")),
+               Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SalesHomeScreen()),
                 );
               },
             ),
@@ -76,9 +78,9 @@ class AppDrawer extends StatelessWidget {
               title: const Text('Dashboard & Analytics'),
               // ยังไม่มีหน้านี้ - ขึ้น SnackBar ว่า Coming Soon
               onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Dashboard & Analytics: Coming Soon!")),
+               Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const DashboardHomeScreen()),
                 );
               },
             ),

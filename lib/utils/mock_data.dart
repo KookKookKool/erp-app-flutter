@@ -3,93 +3,29 @@
 /// Mock Data สำหรับทั้งระบบ (นำไปใช้ได้ทุกหน้า)
 library;
 
-/// =========== PRODUCT =============
+//// =========== PRODUCT (สินค้า) =============
 List<Map<String, dynamic>> mockProductList = [
   {"code": "P001", "name": "สมุดโน๊ต A5", "qty": 50, "unit": "เล่ม", "min": 10},
-  {"code": "P002", "name": "ปากกาเจล", "qty": 100, "unit": "ด้าม", "min": 20},
-  {"code": "P003", "name": "น้ำดื่ม", "qty": 30, "unit": "ขวด", "min": 5},
+  {"code": "P002", "name": "ปากกาเจล", "qty": 12, "unit": "ด้าม", "min": 20},
+  {"code": "P003", "name": "น้ำดื่ม", "qty": 5, "unit": "ขวด", "min": 5},
+  {"code": "P004", "name": "ดินสอ", "qty": 70, "unit": "แท่ง", "min": 30},
+  {"code": "P005", "name": "แฟ้มเอกสาร", "qty": 35, "unit": "อัน", "min": 10},
 ];
 
-/// =========== PURCHASE ORDER =============
+/// =========== PURCHASE ORDER (PO) (12 เดือน) ============
 List<Map<String, dynamic>> mockPOList = [
-  {
-    "poNo": "PO-240001",
-    "date": "2024-06-20",
-    "supplier": "บริษัท สมาร์ทซัพพลาย จำกัด",
-    "warehouse": "คลังหลัก",
-    "status": "อนุมัติ",
-    "items": [
-      {
-        "code": "P001",
-        "name": "สมุดโน๊ต A5",
-        "qty": 10,
-        "unit": "เล่ม",
-        "received": 5,
-      },
-      {
-        "code": "P002",
-        "name": "ปากกาเจล",
-        "qty": 20,
-        "unit": "ด้าม",
-        "received": 10,
-      },
-    ],
-  },
-  {
-    "poNo": "PO-240002",
-    "date": "2024-06-18",
-    "supplier": "รุ่งเรืองการค้า",
-    "warehouse": "คลังสาขา 1",
-    "status": "รับบางส่วน",
-    "items": [
-      {
-        "code": "P003",
-        "name": "น้ำดื่ม",
-        "qty": 50,
-        "unit": "ขวด",
-        "received": 30,
-      },
-    ],
-  },
-  {
-    "poNo": "PO-240003",
-    "date": "2024-06-17",
-    "supplier": "รุ่งโรจน์การค้า",
-    "warehouse": "คลังหลัก",
-    "status": "รับครบ",
-    "items": [
-      {
-        "code": "P004",
-        "name": "ไม้บรรทัด",
-        "qty": 10,
-        "unit": "อัน",
-        "received": 10,
-      },
-    ],
-  },
-  {
-    "poNo": "PO-240004",
-    "date": "2024-06-20",
-    "supplier": "บริษัท สมาร์ทซัพพลาย จำกัด",
-    "warehouse": "คลังหลัก",
-    "status": "อนุมัติ",
-    "items": [
-      {
-        "code": "P001",
-        "name": "สมุดโน๊ต A4",
-        "qty": 10,
-        "unit": "เล่ม",
-        "received": 5,
-      },
-      {
-        "code": "P002",
-        "name": "ดินสอ",
-        "qty": 20,
-        "unit": "ด้าม",
-        "received": 10,
-      },
-    ],
-  },
+  for (int i = 1; i <= 12; i++)
+    {
+      "poNo": "PO-2400${i.toString().padLeft(2, '0')}",
+      "date": "2024-${i.toString().padLeft(2, '0')}-10",
+      "supplier": "S00${(i % 2) + 1}",
+      "warehouse": "W001",
+      "status": i % 4 == 0 ? "ยกเลิก" : (i % 3 == 0 ? "รอดำเนินการ" : "สำเร็จ"),
+      "items": [
+        {"product": "P00${(i % 5) + 1}", "qty": 3 + i, "unit": "ชิ้น", "price": 80.0 + (i * 10)},
+      ],
+      "total": 3000.0 + (i * 800)
+    },
 ];
 
 /// =========== SUPPLIER =============
@@ -110,17 +46,9 @@ List<Map<String, dynamic>> mockSupplierList = [
     "address": "89/9 หมู่ 7 เชียงใหม่",
     "remark": "",
   },
-  {
-    "code": "S003",
-    "name": "รุ่งโรจน์การค้า",
-    "phone": "098-222-444",
-    "email": "rungroj@example.com",
-    "address": "109/9 หมู่ 8 เชียงราย",
-    "remark": "",
-  },
 ];
 
-/// =========== WAREHOUSE (โกดัง) =============
+/// =========== WAREHOUSE ============
 List<Map<String, dynamic>> mockWarehouseList = [
   {
     "code": "W001",
@@ -132,52 +60,81 @@ List<Map<String, dynamic>> mockWarehouseList = [
   {"code": "W003", "name": "คลังสาขา 2", "location": "บางกรวย", "remark": ""},
 ];
 
-/// =========== RECEIVING (ประวัติรับเข้า) =============
-List<Map<String, dynamic>> mockReceivingList = [
-  // สามารถเพิ่มข้อมูลรับเข้าตามต้องการ
-];
-
+/// =========== MOVEMENT LOG (ประวัติการเคลื่อนไหว) =============
 List<Map<String, dynamic>> mockMovementList = [
   {
+    "type": "IN",
     "date": "2024-06-19",
-    "type": "IN", // "OUT", "TRANSFER"
-    "product": "P001",
-    "productName": "สมุดโน๊ต A5",
-    "qty": 10,
+    "docNo": "IN-240001",
     "warehouse": "คลังหลัก",
-    "remark": "รับเข้า",
+    "product": "สมุดโน๊ต A5",
+    "qty": 50,
+    "unit": "เล่ม",
+    "remark": "รับเข้า (สั่งซื้อ)",
   },
-];
-
-/// =========== AP (เจ้าหนี้) =============
-List<Map<String, dynamic>> mockAPList = [
   {
-    "apNo": "AP-240001",
-    "date": "2024-06-20",
-    "supplier": "S001", // <-- ใส่เป็นรหัส
-    "amount": 1500.0,
-    "dueDate": "2024-07-20",
-    "status": "ค้างจ่าย",
-    "poNo": "PO-240001",
-    "items": [
-      {"name": "สมุดโน๊ต A5", "qty": 10, "unit": "เล่ม", "price": 50.0},
-    ],
+    "type": "OUT",
+    "date": "2024-06-18",
+    "docNo": "OUT-240001",
+    "warehouse": "คลังสาขา 1",
+    "product": "น้ำดื่ม 600ml",
+    "qty": 10,
+    "unit": "ขวด",
+    "remark": "เบิกใช้งานกิจกรรม",
+  },
+  {
+    "type": "TRANSFER",
+    "date": "2024-06-17",
+    "docNo": "TRF-240001",
+    "warehouse": "คลังหลัก → คลังสาขา 1",
+    "product": "ปากกาเจล",
+    "qty": 20,
+    "unit": "ด้าม",
+    "remark": "โอนย้ายคลัง",
   },
 ];
 
-/// =========== AR (ลูกหนี้) =============
+/// =========== AR (ลูกหนี้) ============
 List<Map<String, dynamic>> mockARList = [
   {
     "arNo": "AR-240001",
-    "date": "2024-06-18",
-    "customer": "C001", // ใช้รหัสลูกค้า
-    "amount": 3000.0,
-    "dueDate": "2024-07-18",
-    "status": "ค้างรับ", // "ค้างรับ", "รับเงินแล้ว"
-    "soNo": "SO-240001",
-    "items": [
-      {"name": "น้ำดื่ม", "qty": 30, "unit": "ขวด", "price": 100.0},
-    ],
+    "date": "2024-03-01",
+    "customer": "C001",
+    "amount": 6500.0,
+    "dueDate": "2024-03-30",
+    "status": "ค้างรับ",
+    "soNo": "SO-240003",
+  },
+  {
+    "arNo": "AR-240002",
+    "date": "2024-04-10",
+    "customer": "C002",
+    "amount": 4800.0,
+    "dueDate": "2024-04-25",
+    "status": "รับเงินแล้ว",
+    "soNo": "SO-240004",
+  },
+];
+
+/// =========== AP (เจ้าหนี้) ============
+List<Map<String, dynamic>> mockAPList = [
+  {
+    "apNo": "AP-240001",
+    "date": "2024-02-01",
+    "supplier": "S001",
+    "amount": 4000.0,
+    "dueDate": "2024-02-28",
+    "status": "ค้างจ่าย",
+    "poNo": "PO-240002",
+  },
+  {
+    "apNo": "AP-240002",
+    "date": "2024-03-05",
+    "supplier": "S002",
+    "amount": 5200.0,
+    "dueDate": "2024-04-01",
+    "status": "จ่ายแล้ว",
+    "poNo": "PO-240003",
   },
 ];
 
@@ -208,3 +165,112 @@ List<Map<String, dynamic>> mockCustomerList = [
     "remark": "ลูกค้าส่งประจำ",
   },
 ];
+
+
+// sales & CRM
+List<Map<String, dynamic>> mockQuotationList = [
+  {
+    "quotationNo": "QTN-240001",
+    "date": "2024-06-20",
+    "customerName": "บริษัท ไทยเทค จำกัด",
+    "status": "รอดำเนินการ",
+    "total": 3000.0,
+    "items": [],
+  },
+];
+
+
+/// =========== SALES ORDER (SO) (12 เดือน) ============
+List<Map<String, dynamic>> mockSalesOrderList = [
+  for (int i = 1; i <= 12; i++)
+    {
+      "soNo": "SO-2400${i.toString().padLeft(2, '0')}",
+      "date": "2024-${i.toString().padLeft(2, '0')}-15",
+      "customerCode": "C00${(i % 3) + 1}",
+      "total": 8000.0 + (i * 1500),
+      "status": i % 4 == 0 ? "ยกเลิก" : (i % 3 == 0 ? "รอดำเนินการ" : "สำเร็จ"),
+      "items": [
+        {"product": "P00${(i % 5) + 1}", "qty": 5 + i, "unit": "ชิ้น", "price": 100.0 + (i * 20)},
+      ]
+    },
+];
+
+
+/// รับสินค้าเข้าสต็อก (IN)
+void receiveProduct(String code, int qty, String warehouse, String refNo) {
+  final idx = mockProductList.indexWhere((p) => p["code"] == code);
+  if (idx != -1) {
+    mockProductList[idx]["qty"] += qty;
+    mockMovementList.add({
+      "date": DateTime.now().toIso8601String().substring(0, 10),
+      "type": "IN",
+      "product": code,
+      "qty": qty,
+      "warehouse": warehouse,
+      "ref": refNo,
+    });
+  }
+}
+
+/// จ่ายสินค้าออกจากสต็อก (OUT)
+bool issueProduct(String code, int qty, String warehouse, String refNo) {
+  final idx = mockProductList.indexWhere((p) => p["code"] == code);
+  if (idx != -1 && mockProductList[idx]["qty"] >= qty) {
+    mockProductList[idx]["qty"] -= qty;
+    mockMovementList.add({
+      "date": DateTime.now().toIso8601String().substring(0, 10),
+      "type": "OUT",
+      "product": code,
+      "qty": qty,
+      "warehouse": warehouse,
+      "ref": refNo,
+    });
+    return true;
+  }
+  return false;
+}
+
+/// โอนสินค้า (TRANSFER)
+bool transferStock(String code, int qty, String fromWh, String toWh) {
+  // สำหรับ demo: ระบบยังเป็น stock เดียว
+  // หากต้องการแยก stock หลายคลัง ต้องแก้ data structure
+  final idx = mockProductList.indexWhere((p) => p["code"] == code);
+  if (idx != -1 && mockProductList[idx]["qty"] >= qty) {
+    // ใน mock นี้ stock ลดฝั่งเดียว
+    mockProductList[idx]["qty"] -= qty;
+    // log transfer
+    mockMovementList.add({
+      "date": DateTime.now().toIso8601String().substring(0, 10),
+      "type": "TRANSFER",
+      "product": code,
+      "qty": qty,
+      "warehouse": "$fromWh → $toWh",
+      "ref": "", // เพิ่ม ref ได้ตามต้องการ
+    });
+    return true;
+  }
+  return false;
+}
+
+/// ดูยอด stock สินค้าแต่ละตัว
+int getStock(String code) {
+  final idx = mockProductList.indexWhere((p) => p["code"] == code);
+  return idx != -1 ? mockProductList[idx]["qty"] as int : 0;
+}
+
+/// ตรวจสอบว่าต่ำกว่าขั้นต่ำหรือไม่
+bool isBelowMin(String code) {
+  final idx = mockProductList.indexWhere((p) => p["code"] == code);
+  if (idx != -1) {
+    final qty = mockProductList[idx]["qty"] as int;
+    final min = mockProductList[idx]["min"] as int;
+    return qty < min;
+  }
+  return false;
+}
+
+/// ดึง movement log เฉพาะสินค้า (หรือทั้งหมด)
+List<Map<String, dynamic>> getMovements({String? code}) {
+  if (code == null) return mockMovementList;
+  return mockMovementList.where((m) => m["product"] == code).toList();
+}

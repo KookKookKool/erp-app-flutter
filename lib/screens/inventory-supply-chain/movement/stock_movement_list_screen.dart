@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'stock_movement_form_screen.dart';
 import 'issuing_form_screen.dart';
 import 'transfer_form_screen.dart';
-import 'package:erp_app/utils/stock_utils.dart'; // ใช้งาน movementLog
+import 'package:erp_app/utils/mock_data.dart'; 
 
 class StockMovementListScreen extends StatefulWidget {
   const StockMovementListScreen({super.key});
@@ -25,7 +25,7 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
   @override
   Widget build(BuildContext context) {
     // ดึง movementLog จาก stock_utils.dart
-    final movements = List<Map<String, dynamic>>.from(movementLog);
+    final movements = List<Map<String, dynamic>>.from(mockMovementList);
 
     // ฟิลเตอร์ทั้งประเภทและค้นหา
     final filtered = movements.where((mv) {
@@ -55,37 +55,26 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-            child: Row(
-              children: [
-                const Text(
-                  "ประเภท:",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    isExpanded: true,
-                    value: filterType,
-                    items: typeOptions
-                        .map(
-                          (t) => DropdownMenuItem(
-                            value: t["value"],
-                            child: Text(t["label"]!),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (val) => setState(() => filterType = val ?? ""),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
+            child: DropdownButtonFormField<String>(
+              value: filterType,
+              items: typeOptions
+                  .map(
+                    (s) => DropdownMenuItem(
+                      value: s["value"],
+                      child: Text(s["label"]!),
                     ),
-                  ),
+                  )
+                  .toList(),
+              onChanged: (val) => setState(() => filterType = val ?? ""),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
                 ),
-              ],
+                labelText: "สถานะ",
+              ),
             ),
           ),
           Expanded(
@@ -153,6 +142,7 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                           trailing: IconButton(
                             icon: const Icon(Icons.edit, color: Colors.orange),
                             onPressed: () async {
+                              // ignore: unused_local_variable
                               final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -164,6 +154,7 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
                             },
                           ),
                           onTap: () async {
+                            // ignore: unused_local_variable
                             final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -219,6 +210,7 @@ class _StockMovementListScreenState extends State<StockMovementListScreen> {
             icon: const Icon(Icons.add),
             label: const Text("รับ/จ่าย/โอนใหม่"),
             onPressed: () async {
+              // ignore: unused_local_variable
               final newMv = await Navigator.push(
                 context,
                 MaterialPageRoute(
