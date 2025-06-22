@@ -7,11 +7,11 @@ class AccountingHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 900;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("บัญชี-การเงิน (Accounting/Finance)"),
-        centerTitle: true,
-      ),
+     appBar: isLargeScreen
+          ? AppBar(title: const Text("Accounting / Finance"), centerTitle: true)
+          : null,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
         child: GridView.count(

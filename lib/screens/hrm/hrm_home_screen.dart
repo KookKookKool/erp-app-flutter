@@ -7,11 +7,14 @@ class HRMHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 900;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("เมนู HRM"),
-        centerTitle: true,
-      ),
+      appBar: isLargeScreen
+          ? AppBar(
+              title: const Text("Human Resource Management"),
+              centerTitle: true,
+            )
+          : null,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
         child: GridView.count(
@@ -32,7 +35,9 @@ class HRMHomeScreen extends StatelessWidget {
               label: "รายงานการเข้างาน",
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const AttendanceReportScreen()),
+                MaterialPageRoute(
+                  builder: (_) => const AttendanceReportScreen(),
+                ),
               ),
             ),
             // Payroll Module with "Coming soon"
@@ -43,7 +48,9 @@ class HRMHomeScreen extends StatelessWidget {
                   label: "เงินเดือน\n(กำลังอัพเดท)", // \n เพื่อจัดกึ่งกลาง
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("โมดูล Payroll/เงินเดือน กำลังอัพเดท")),
+                      const SnackBar(
+                        content: Text("โมดูล Payroll/เงินเดือน กำลังอัพเดท"),
+                      ),
                     );
                   },
                 ),
@@ -51,7 +58,10 @@ class HRMHomeScreen extends StatelessWidget {
                   left: 0,
                   top: 0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.orange.shade300,
                       borderRadius: const BorderRadius.only(
@@ -108,7 +118,10 @@ class _HRMModuleIcon extends StatelessWidget {
             Center(
               child: Text(
                 label,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),

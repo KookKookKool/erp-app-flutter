@@ -1,13 +1,15 @@
+// lib/widgets/app_drawer.dart
 import 'package:flutter/material.dart';
-import 'package:erp_app/screens/hrm/hrm_home_screen.dart';
-import 'package:erp_app/screens/inventory-supply-chain/inventory_home_screen.dart';
-import 'package:erp_app/screens/accounting/accounting_home_screen.dart';
-import 'package:erp_app/screens/sales-crm/sales_home_screen.dart';
-import 'package:erp_app/screens/dashboard/dashboard_home_screen.dart';
-
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  final int selectedIndex;
+  final void Function(int)? onMenuTap;
+
+  const AppDrawer({
+    super.key,
+    this.selectedIndex = 0,
+    this.onMenuTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,82 +19,55 @@ class AppDrawer extends StatelessWidget {
           children: [
             UserAccountsDrawerHeader(
               currentAccountPicture: CircleAvatar(
-                backgroundImage: NetworkImage("https://i.pravatar.cc/300?img=5"),
+                backgroundImage: NetworkImage(
+                  "https://i.pravatar.cc/300?img=5",
+                ),
               ),
               accountName: const Text("ศิริพร ใจดี (ฝ้าย)"),
               accountEmail: const Text("faijai@gmail.com"),
-              decoration: const BoxDecoration(
-                color: Colors.blueAccent,
-              ),
+              decoration: const BoxDecoration(color: Colors.blueAccent),
             ),
             ListTile(
               leading: const Icon(Icons.account_circle),
               title: const Text("My Profile"),
-              // onTap: () => Navigator.pop(context), // ถ้ามีหน้า dashboard จริงให้เปิดหน้านั้น
-              onTap: () {
-                Navigator.pop(context); // หรือเพิ่มหน้า dashboard ตามต้องการ
-              },
+              selected: selectedIndex == 0,
+              onTap: () => onMenuTap?.call(0),
             ),
             ListTile(
               leading: const Icon(Icons.people),
-              title: const Text("HRM"),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const HRMHomeScreen()),
-                );
-              },
+              title: const Text("HR Management"),
+              selected: selectedIndex == 1,
+              onTap: () => onMenuTap?.call(1),
             ),
             ListTile(
               leading: const Icon(Icons.inventory_2),
               title: const Text('Inventory & Supply Chain'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const InventoryHomeScreen()),
-                );
-              },
+              selected: selectedIndex == 2,
+              onTap: () => onMenuTap?.call(2),
             ),
             ListTile(
               leading: const Icon(Icons.account_balance_wallet),
               title: const Text('Accounting / Finance'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AccountingHomeScreen()),
-                );
-              },
+              selected: selectedIndex == 3,
+              onTap: () => onMenuTap?.call(3),
             ),
             ListTile(
               leading: const Icon(Icons.shopping_cart),
               title: const Text('Sales / CRM'),
-              // ยังไม่มีหน้านี้ - ขึ้น SnackBar ว่า Coming Soon
-              onTap: () {
-               Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SalesHomeScreen()),
-                );
-              },
+              selected: selectedIndex == 4,
+              onTap: () => onMenuTap?.call(4),
             ),
             ListTile(
               leading: const Icon(Icons.analytics),
               title: const Text('Dashboard & Analytics'),
-              // ยังไม่มีหน้านี้ - ขึ้น SnackBar ว่า Coming Soon
-              onTap: () {
-               Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const DashboardHomeScreen()),
-                );
-              },
+              selected: selectedIndex == 5,
+              onTap: () => onMenuTap?.call(5),
             ),
             ListTile(
               leading: const Icon(Icons.folder_copy),
               title: const Text('Project / Workflow'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Project / Workflow: Coming Soon!")),
-                );
-              },
+              selected: selectedIndex == 6,
+              onTap: () => onMenuTap?.call(6),
             ),
             const Spacer(),
             const Divider(),

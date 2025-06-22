@@ -8,8 +8,11 @@ class SalesHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 900;
     return Scaffold(
-      appBar: AppBar(title: const Text("Sales / CRM")),
+      appBar: isLargeScreen
+          ? AppBar(title: const Text("Sales & CRM"), centerTitle: true)
+          : null,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
         child: GridView.count(

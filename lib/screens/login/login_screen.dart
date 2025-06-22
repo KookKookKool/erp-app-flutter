@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:erp_app/screens/home/myprofile_screen.dart';
+import 'package:erp_app/MainResponsiveShell.dart';
 
 // ทำการ mock ข้อมูลบัญชีผู้ใช้สำหรับทดสอบ
 // ในการพัฒนาแอปพลิเคชันจริง ควรเชื่อมต่อกับ backend หรือฐานข้อมูลจริง
@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // ไปหน้า Dashboard
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+          MaterialPageRoute(builder: (_) => const MainResponsiveShell()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

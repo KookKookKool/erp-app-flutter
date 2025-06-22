@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'profile_card.dart';
 import 'time_card.dart';
 import 'checkin_button.dart';
-import 'package:erp_app/widgets/app_drawer.dart';
 import 'package:erp_app/screens/hrm/attendance/leave_request_screen.dart';
 
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+class MyProfileScreen extends StatefulWidget {
+  const MyProfileScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<MyProfileScreen> createState() => _MyProfileScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _MyProfileScreenState extends State<MyProfileScreen> {
   // mock ข้อมูลพนักงาน
   final mockProfile = {
     "empId": "EMP001",
@@ -26,7 +25,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     "startDate": "2020-01-20",
   };
 
-  // mock ข้อมูลเวลาเข้า-ออก
   DateTime? checkInTime;
   DateTime? checkOutTime;
 
@@ -37,27 +35,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       } else if (checkOutTime == null) {
         checkOutTime = DateTime.now();
       } else {
-        // รีเซ็ต demo (จริงควรปิดปุ่ม)
         checkInTime = null;
         checkOutTime = null;
       }
     });
   }
 
+  
+  
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 900;
     return Scaffold(
-      drawer: const AppDrawer(), // เมนูเบอร์เกอร์
-      appBar: AppBar(
-        title: const Text("โปรไฟล์พนักงาน"),
-        centerTitle: true,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-      ),
+      appBar: isLargeScreen
+          ? AppBar(title: const Text("My Profile"), centerTitle: true)
+          : null,
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
@@ -65,10 +57,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 32),
           TimeCard(checkIn: checkInTime, checkOut: checkOutTime),
           const SizedBox(height: 24),
-          // <<<-- ปุ่มบันทึกเวลา & ลางาน อยู่แถวเดียวกัน
           Row(
             children: [
-              // ปุ่มบันทึกเวลา (ซ้าย)
               Expanded(
                 child: CheckInButton(
                   checkIn: checkInTime,
@@ -77,7 +67,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              // ปุ่มลางาน (ขวา)
               Expanded(
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.event_note),
@@ -108,7 +97,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          // --- จบ Row ปุ่มคู่
         ],
       ),
     );

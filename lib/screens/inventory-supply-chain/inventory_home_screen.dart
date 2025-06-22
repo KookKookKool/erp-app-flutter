@@ -12,11 +12,11 @@ class InventoryHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 900;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("คลังสินค้า & ซัพพลายเชน"),
-        centerTitle: true,
-      ),
+      appBar: isLargeScreen
+          ? AppBar(title: const Text("Inventory & Supply Chain"), centerTitle: true)
+          : null,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
         child: GridView.count(

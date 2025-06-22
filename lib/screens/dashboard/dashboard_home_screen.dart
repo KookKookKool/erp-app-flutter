@@ -48,8 +48,11 @@ class DashboardHomeScreen extends StatelessWidget {
     final arDue = mockARList.where((ar) => ar["status"] == "ค้างรับ").fold<double>(0, (a, ar) => a + (ar["amount"] ?? 0));
     final apDue = mockAPList.where((ap) => ap["status"] == "ค้างจ่าย").fold<double>(0, (a, ap) => a + (ap["amount"] ?? 0));
 
+    final isLargeScreen = MediaQuery.of(context).size.width >= 900;
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard & KPIs')),
+      appBar: isLargeScreen
+          ? AppBar(title: const Text("Dashboard & Analytics"), centerTitle: true)
+          : null,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: Column(

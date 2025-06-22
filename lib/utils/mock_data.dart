@@ -3,6 +3,62 @@
 /// Mock Data สำหรับทั้งระบบ (นำไปใช้ได้ทุกหน้า)
 library;
 
+//// =========== Employee (พนักงาน) =============
+List<Map<String, dynamic>> mockEmployeeList = [
+  {
+    "empId": "EMP001",
+    "name": "ศิริพร ใจดี",
+    "nickname": "ฝ้าย",
+    "level": "Senior",
+    "position": "HR Manager",
+    "department": "D001",
+    "email": "faijai@gmail.com",
+    "phone": "0812345678",
+    "profilePic": "https://i.pravatar.cc/300?img=5",
+    "password": "123456",
+    "startDate": "2020-01-20", // วันที่เริ่มงาน
+  },
+  {
+    "empId": "EMP002",
+    "name": "อนันต์ อาจดี",
+    "nickname": "นัท",
+    "level": "Staff",
+    "position": "Programmer",
+    "department": "D002",
+    "email": "anan@gmail.com",
+    "phone": "0898765432",
+    "profilePic": "https://i.pravatar.cc/300?img=2",
+    "password": "654321",
+    "startDate": "2020-01-20", // วันที่เริ่มงาน
+  },
+  {
+    "empId": "EMP003",
+    "name": "สุธา อาจดี",
+    "nickname": "สุธา",
+    "level": "Staff",
+    "position": "Project Manager",
+    "department": "D003",
+    "email": "sutha@gmail.com",
+    "phone": "0898765432",
+    "profilePic": "https://i.pravatar.cc/300?img=3",
+    "password": "654321",
+    "startDate": "2020-01-20", // วันที่เริ่มงาน
+  },
+  {
+    "empId": "EMP004",
+    "name": "สุธา อาจดี",
+    "nickname": "สุธา",
+    "level": "Staff",
+    "position": "Programmer",
+    "department": "D002",
+    "email": "sutha@gmail.com",
+    "phone": "0898765432",
+    "profilePic": "https://i.pravatar.cc/300?img=3",
+    "password": "654321",
+    "startDate": "2020-01-20", // วันที่เริ่มงาน
+  },
+];
+
 //// =========== PRODUCT (สินค้า) =============
 List<Map<String, dynamic>> mockProductList = [
   {"code": "P001", "name": "สมุดโน๊ต A5", "qty": 50, "unit": "เล่ม", "min": 10},
@@ -22,9 +78,14 @@ List<Map<String, dynamic>> mockPOList = [
       "warehouse": "W001",
       "status": i % 4 == 0 ? "ยกเลิก" : (i % 3 == 0 ? "รอดำเนินการ" : "สำเร็จ"),
       "items": [
-        {"product": "P00${(i % 5) + 1}", "qty": 3 + i, "unit": "ชิ้น", "price": 80.0 + (i * 10)},
+        {
+          "product": "P00${(i % 5) + 1}",
+          "qty": 3 + i,
+          "unit": "ชิ้น",
+          "price": 80.0 + (i * 10),
+        },
       ],
-      "total": 3000.0 + (i * 800)
+      "total": 3000.0 + (i * 800),
     },
 ];
 
@@ -166,7 +227,6 @@ List<Map<String, dynamic>> mockCustomerList = [
   },
 ];
 
-
 // sales & CRM
 List<Map<String, dynamic>> mockQuotationList = [
   {
@@ -179,7 +239,6 @@ List<Map<String, dynamic>> mockQuotationList = [
   },
 ];
 
-
 /// =========== SALES ORDER (SO) (12 เดือน) ============
 List<Map<String, dynamic>> mockSalesOrderList = [
   for (int i = 1; i <= 12; i++)
@@ -190,11 +249,15 @@ List<Map<String, dynamic>> mockSalesOrderList = [
       "total": 8000.0 + (i * 1500),
       "status": i % 4 == 0 ? "ยกเลิก" : (i % 3 == 0 ? "รอดำเนินการ" : "สำเร็จ"),
       "items": [
-        {"product": "P00${(i % 5) + 1}", "qty": 5 + i, "unit": "ชิ้น", "price": 100.0 + (i * 20)},
-      ]
+        {
+          "product": "P00${(i % 5) + 1}",
+          "qty": 5 + i,
+          "unit": "ชิ้น",
+          "price": 100.0 + (i * 20),
+        },
+      ],
     },
 ];
-
 
 /// รับสินค้าเข้าสต็อก (IN)
 void receiveProduct(String code, int qty, String warehouse, String refNo) {
@@ -274,3 +337,40 @@ List<Map<String, dynamic>> getMovements({String? code}) {
   if (code == null) return mockMovementList;
   return mockMovementList.where((m) => m["product"] == code).toList();
 }
+
+/// =========== PROJECTS (โครงการ) =============
+List<Map<String, dynamic>> mockProjectList = [
+  {
+    "id": "P001",
+    "name": "ERP Implementation",
+    "description": "ปรับใช้ระบบ ERP ครบวงจร",
+    "responsible": "E001", // ผู้รับผิดชอบ id
+    "departments": ["d01", "d03"],
+    "members": ["E001", "E002"],
+    "progress": 0.7,
+    "tasks": [
+      {"name": "Requirement Analysis", "completed": true},
+      {"name": "System Setup", "completed": false},
+      // ... เพิ่ม
+    ],
+    "comments": [
+      {
+        "user": "E002",
+        "text": "เราต้องปรับ timeline ให้เร็วขึ้น",
+        "createdAt": "2024-06-22 09:00",
+      },
+    ],
+    "activitylog": [
+      {"user": "E001", "action": "สร้างโครงการ", "date": "2024-06-21"},
+    ],
+  },
+  // ... เพิ่ม project อื่นๆ
+];
+
+/// =========== DEPARTMENTS (แผนก) =============
+final mockDepartmentList = [
+  {"id": "D01", "name": "HR"},
+  {"id": "D02", "name": "IT"},
+  {"id": "D03", "name": "Design"},
+  {"id": "D04", "name": "Sales"},
+];
