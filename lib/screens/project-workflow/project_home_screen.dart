@@ -24,6 +24,7 @@ class ProjectHomeScreen extends StatelessWidget {
         itemCount: mockProjectList.length,
         itemBuilder: (_, i) {
           final pj = mockProjectList[i];
+          // ignore: unused_local_variable
           final responsible = findEmployee(pj["responsible"]);
           final members = (pj["members"] as List<dynamic>? ?? [])
               .map((id) => findEmployee(id))

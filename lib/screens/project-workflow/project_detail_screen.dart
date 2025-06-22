@@ -1,3 +1,4 @@
+// lib/screens/project-workflow/project_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:erp_app/utils/mock_data.dart';
 import 'widgets/project_name_editor.dart';
@@ -15,7 +16,10 @@ class ProjectDetailScreen extends StatefulWidget {
 }
 
 class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
-  late Map<String, dynamic> project;
+  Map<String, dynamic>? project;
+  List<Map<String, dynamic>> comments = [];
+  List<Map<String, dynamic>> tasks = [];
+  List<Map<String, dynamic>> activitylog = [];
 
   @override
   void initState() {
@@ -24,118 +28,104 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
   }
 
   void _loadProject() {
-    project = mockProjectList.firstWhere((p) => p['id'] == widget.projectId);
+    project = mockProjectList.firstWhere(
+      (p) => p['id'] == widget.projectId,
+      orElse: () => {},
+    );
+    comments =
+        (project?["comments"] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    tasks = (project?["tasks"] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    activitylog =
+        (project?["activitylog"] as List?)?.cast<Map<String, dynamic>>() ?? [];
   }
 
-  void _updateProject(Map<String, dynamic> updates) {
+  void _onEditName(String name, String desc) {
     setState(() {
-      project.addAll(updates);
+      project?["name"] = name;
+      project?["description"] = desc;
     });
   }
 
-  void _addLog(String action) {
+  void _onUpdateStakeholders(
+    List<String> departments,
+    List<String> members,
+    String responsible,
+  ) {
     setState(() {
-      project['activitylog'].insert(0, {
-        "user": "E001", // ปรับเป็น user ปัจจุบันหากมีระบบ login
-        "action": action,
-        "date": DateTime.now().toString().substring(0, 16),
-      });
+      project?["departments"] = departments;
+      project?["members"] = members;
+      project?["responsible"] = responsible;
+    });
+  }
+
+  void _onUpdateTasks(List<Map<String, dynamic>> newTasks) {
+    setState(() {
+      project?["tasks"] = newTasks;
+    });
+  }
+
+  void _onAddComment(Map<String, dynamic> newComment) {
+    setState(() {
+      comments.insert(0, newComment);
+      project?["comments"] = comments;
+    });
+  }
+
+  void _onUpdateActivityLog(List<Map<String, dynamic>> log) {
+    setState(() {
+      project?["activitylog"] = log;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    _loadProject();
+    if (project == null)
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Project Detail"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () {
-              // ลบ project
-              showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text("Delete Project"),
-                  content: const Text("Are you sure to delete this project?"),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Cancel"),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        mockProjectList.removeWhere((p) => p['id'] == widget.projectId);
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                      child: const Text("Delete", style: TextStyle(color: Colors.red)),
-                    ),
-                  ],
-                ),
-              );
-            },
-          )
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(18),
-        children: [
-          ProjectNameEditor(
-            name: project['name'],
-            description: project['description'] ?? "",
-            onChanged: (name, desc) {
-              _updateProject({"name": name, "description": desc});
-              _addLog("Edit project name/description");
-            },
+      appBar: AppBar(title: const Text("Project Detail")),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ProjectNameEditor(
+                initialName: project?["name"] ?? "",
+                initialDescription: project?["description"] ?? "",
+                onEdit: _onEditName,
+              ),
+              const SizedBox(height: 14),
+              ProjectStakeholders(
+                responsibleId: project?["responsible"] ?? "",
+                departments: List<String>.from(project?["departments"] ?? []),
+                members: List<String>.from(project?["members"] ?? []),
+                onChanged: (newResponsible, newDepts, newMembers) {
+                  setState(() {
+                    project?["responsible"] = newResponsible;
+                    project?["departments"] = newDepts;
+                    project?["members"] = newMembers;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              TaskChecklist(
+                tasks: List<Map<String, dynamic>>.from(project?["tasks"] ?? []),
+                onUpdate: _onUpdateTasks,
+              ),
+              const SizedBox(height: 16),
+              CommentSection(
+                comments: comments,
+                onAdd: _onAddComment,
+                projectId: widget.projectId,
+              ),
+              const SizedBox(height: 16),
+              ActivityLog(
+                activitylog: activitylog,
+                onUpdate: _onUpdateActivityLog,
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          ProjectStakeholders(
-            project: project,
-            onUpdate: (departments, members, responsible) {
-              _updateProject({
-                "departments": departments,
-                "members": members,
-                "responsible": responsible,
-              });
-              _addLog("Edit stakeholders");
-            },
-          ),
-          const SizedBox(height: 18),
-          TaskChecklist(
-            tasks: List<Map<String, dynamic>>.from(project['tasks']),
-            progress: project['progress'] ?? 0.0,
-            onChanged: (tasks, progress) {
-              _updateProject({"tasks": tasks, "progress": progress});
-              _addLog("Edit tasks/progress");
-            },
-          ),
-          const SizedBox(height: 20),
-          CommentSection(
-            comments: List<Map<String, dynamic>>.from(project['comments']),
-            onAdd: (comment) {
-              setState(() {
-                project['comments'].insert(0, comment);
-              });
-              _addLog("Add comment");
-            },
-            onEdit: (idx, newComment) {
-              setState(() {
-                project['comments'][idx] = newComment;
-              });
-              _addLog("Edit comment");
-            },
-            onDelete: (idx) {
-              setState(() {
-                project['comments'][idx]['deleted'] = true;
-              });
-              _addLog("Delete comment");
-            },
-          ),
-          const SizedBox(height: 20),
-          ActivityLog(logs: List<Map<String, dynamic>>.from(project['activitylog'])),
-        ],
+        ),
       ),
     );
   }

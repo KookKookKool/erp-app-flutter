@@ -1,59 +1,51 @@
 import 'package:flutter/material.dart';
 
 class ProjectNameEditor extends StatefulWidget {
-  final String name;
-  final String description;
-  final Function(String, String) onChanged;
-  const ProjectNameEditor({
-    super.key,
-    required this.name,
-    required this.description,
-    required this.onChanged,
-  });
+  final String initialName;
+  final String initialDescription;
+  final Function(String, String) onEdit;
+  const ProjectNameEditor({super.key, required this.initialName, required this.initialDescription, required this.onEdit});
 
   @override
   State<ProjectNameEditor> createState() => _ProjectNameEditorState();
 }
 
 class _ProjectNameEditorState extends State<ProjectNameEditor> {
-  late TextEditingController _nameCtrl;
-  late TextEditingController _descCtrl;
+  late TextEditingController nameCtrl;
+  late TextEditingController descCtrl;
 
   @override
   void initState() {
+    nameCtrl = TextEditingController(text: widget.initialName);
+    descCtrl = TextEditingController(text: widget.initialDescription);
     super.initState();
-    _nameCtrl = TextEditingController(text: widget.name);
-    _descCtrl = TextEditingController(text: widget.description);
-  }
-
-  @override
-  void dispose() {
-    _nameCtrl.dispose();
-    _descCtrl.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              controller: _nameCtrl,
+              controller: nameCtrl,
               decoration: const InputDecoration(labelText: "Project Name"),
-              onChanged: (v) => widget.onChanged(v, _descCtrl.text),
+              onSubmitted: (_) => widget.onEdit(nameCtrl.text, descCtrl.text),
             ),
-            const SizedBox(height: 10),
             TextField(
-              controller: _descCtrl,
-              maxLines: 2,
+              controller: descCtrl,
               decoration: const InputDecoration(labelText: "Description"),
-              onChanged: (v) => widget.onChanged(_nameCtrl.text, v),
+              onSubmitted: (_) => widget.onEdit(nameCtrl.text, descCtrl.text),
             ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => widget.onEdit(nameCtrl.text, descCtrl.text),
+                child: const Text("Save"),
+              ),
+            )
           ],
         ),
       ),

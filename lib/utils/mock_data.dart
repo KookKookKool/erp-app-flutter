@@ -344,27 +344,25 @@ List<Map<String, dynamic>> mockProjectList = [
     "id": "P001",
     "name": "ERP Implementation",
     "description": "ปรับใช้ระบบ ERP ครบวงจร",
-    "responsible": "E001", // ผู้รับผิดชอบ id
-    "departments": ["d01", "d03"],
-    "members": ["E001", "E002"],
+    "responsible": "EMP001",
+    "departments": ["D01", "D02"],
+    "members": ["EMP001", "EMP002"],
     "progress": 0.7,
     "tasks": [
       {"name": "Requirement Analysis", "completed": true},
       {"name": "System Setup", "completed": false},
-      // ... เพิ่ม
     ],
     "comments": [
       {
         "user": "E002",
         "text": "เราต้องปรับ timeline ให้เร็วขึ้น",
-        "createdAt": "2024-06-22 09:00",
-      },
+        "createdAt": "2024-06-22 09:00"
+      }
     ],
     "activitylog": [
-      {"user": "E001", "action": "สร้างโครงการ", "date": "2024-06-21"},
+      {"user": "E001", "action": "สร้างโครงการ", "date": "2024-06-21"}
     ],
   },
-  // ... เพิ่ม project อื่นๆ
 ];
 
 /// =========== DEPARTMENTS (แผนก) =============

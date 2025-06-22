@@ -1,195 +1,222 @@
+// D:\flutter\erp_app\lib\screens\project-workflow\widgets\project_stakeholders.dart
 import 'package:flutter/material.dart';
 import 'package:erp_app/utils/mock_data.dart';
 
 class ProjectStakeholders extends StatefulWidget {
-  final Map<String, dynamic> project;
-  final Function(List<String>, List<String>, String) onUpdate;
+  final String responsibleId;
+  final List<String> departments;
+  final List<String> members;
+  final Function(
+    String newResponsible,
+    List<String> departments,
+    List<String> members,
+  )
+  onChanged;
+
   const ProjectStakeholders({
-    super.key,
-    required this.project,
-    required this.onUpdate,
-  });
+    Key? key,
+    required this.responsibleId,
+    required this.departments,
+    required this.members,
+    required this.onChanged,
+  }) : super(key: key);
 
   @override
   State<ProjectStakeholders> createState() => _ProjectStakeholdersState();
 }
 
 class _ProjectStakeholdersState extends State<ProjectStakeholders> {
+  late String responsibleId;
   late List<String> departments;
   late List<String> members;
-  late String responsible;
 
   @override
   void initState() {
     super.initState();
-    departments = List<String>.from(widget.project['departments']);
-    members = List<String>.from(widget.project['members']);
-    responsible = widget.project['responsible'] ?? "";
+    responsibleId = widget.responsibleId;
+    departments = List<String>.from(widget.departments);
+    members = List<String>.from(widget.members);
   }
 
-  void _selectDepartments() async {
-    final selected = await showDialog<List<String>>(
+  void _update() {
+    widget.onChanged(responsibleId, departments, members);
+  }
+
+  Future<void> _selectResponsible() async {
+    final newId = await showDialog<String>(
       context: context,
-      builder: (ctx) {
-        final tmp = Set<String>.from(departments);
-        return AlertDialog(
-          title: const Text("ฝ่ายเกี่ยวข้อง"),
-          content: SizedBox(
-            width: 260,
-            child: ListView(
-              shrinkWrap: true,
-              children: mockDepartmentList.map((d) {
-                final deptId = d['id'];
-                return CheckboxListTile(
-                  value:
-                      tmp.contains(deptId) ||
-                      tmp.contains(deptId?.toLowerCase()),
-                  title: Text(d['name'] ?? ''),
-                  onChanged: (v) {
-                    setState(() {
-                      if (v == true) {
-                        tmp.add(deptId!);
-                      } else {
-                        tmp.remove(deptId);
-                      }
-                    });
-                  },
-                );
-              }).toList(),
+      builder: (ctx) => SimpleDialog(
+        title: const Text("เลือกผู้รับผิดชอบ"),
+        children: mockEmployeeList.map((e) {
+          return SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, e["empId"]),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundImage: e["profilePic"] != null
+                      ? NetworkImage(e["profilePic"]!)
+                      : null,
+                  child:
+                      (e["profilePic"] == null ||
+                          e["profilePic"].toString().isEmpty)
+                      ? Text(e["name"]?[0] ?? "?")
+                      : null,
+                ),
+                const SizedBox(width: 10),
+                Text(e["name"] ?? ""),
+              ],
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, tmp.toList()),
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
+          );
+        }).toList(),
+      ),
     );
-    if (selected != null) {
-      setState(() => departments = selected);
-      widget.onUpdate(departments, members, responsible);
+    if (newId != null && newId.isNotEmpty) {
+      setState(() {
+        responsibleId = newId;
+        // (Optionally: auto-add to members)
+        if (!members.contains(newId)) {
+          members.add(newId);
+        }
+        _update();
+      });
     }
   }
 
-  void _selectMembers() async {
+  Future<void> _selectDepartments() async {
     final selected = await showDialog<List<String>>(
       context: context,
       builder: (ctx) {
-        final tmp = Set<String>.from(members);
+        final tmp = Set<String>.from(
+          departments,
+        ); // departments คือ List<String> ปัจจุบัน
         return AlertDialog(
-          title: const Text("บุคคลที่เกี่ยวข้อง"),
+          title: const Text("เลือกฝ่ายที่เกี่ยวข้อง"),
           content: SizedBox(
-            width: 260,
-            child: ListView(
-              shrinkWrap: true,
-              children: mockEmployeeList.map((e) {
-                return CheckboxListTile(
-                  value: tmp.contains(e['id']),
-                  title: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 12,
-                        backgroundImage: NetworkImage(e['profilePic'] ?? ""),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(e['name']),
-                    ],
-                  ),
-                  onChanged: (v) {
-                    setState(() {
-                      if (v == true) {
-                        tmp.add(e['id']);
-                      } else {
-                        tmp.remove(e['id']);
-                      }
-                    });
-                  },
-                );
-              }).toList(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, tmp.toList()),
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-    if (selected != null) {
-      setState(() => members = selected);
-      widget.onUpdate(departments, members, responsible);
-    }
-  }
-
-  void _selectResponsible() async {
-    final selected = await showDialog<String>(
-      context: context,
-      builder: (ctx) {
-        return SimpleDialog(
-          title: const Text("เลือกผู้รับผิดชอบ"),
-          children: mockEmployeeList.map((e) {
-            return SimpleDialogOption(
-              onPressed: () => Navigator.pop(ctx, e['id']),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 13,
-                    backgroundImage: NetworkImage(e['profilePic'] ?? ""),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(e['name']),
-                ],
+            width: 320,
+            child: StatefulBuilder(
+              builder: (context, setInnerState) => ListView(
+                shrinkWrap: true,
+                children: mockDepartmentList.map<Widget>((d) {
+                  return CheckboxListTile(
+                    value: tmp.contains(d["id"]),
+                    title: Text(d["name"] ?? ""),
+                    onChanged: (v) {
+                      setInnerState(() {
+                        if (v == true)
+                          tmp.add((d["id"] ?? "").toString());
+                        else
+                          tmp.remove(d["id"]);
+                      });
+                    },
+                  );
+                }).toList(),
               ),
-            );
-          }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, null),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, tmp.toList()),
+              child: const Text("OK"),
+            ),
+          ],
         );
       },
     );
     if (selected != null) {
-      setState(() => responsible = selected);
-      widget.onUpdate(departments, members, responsible);
+      setState(() {
+        departments = selected;
+        _update(); // ถ้ามีฟังก์ชัน update ให้เรียกต่อท้าย
+      });
+    }
+  }
+
+  Future<void> _selectMembers() async {
+    final selected = await showDialog<List<String>>(
+      context: context,
+      builder: (ctx) {
+        final tmp = Set<String>.from(
+          members,
+        ); // members คือ List<String> ปัจจุบัน
+        return AlertDialog(
+          title: const Text("เลือกบุคคลที่เกี่ยวข้อง"),
+          content: SizedBox(
+            width: 320,
+            child: StatefulBuilder(
+              builder: (context, setInnerState) => ListView(
+                shrinkWrap: true,
+                children: mockEmployeeList.map<Widget>((e) {
+                  return CheckboxListTile(
+                    value: tmp.contains(e["empId"]),
+                    title: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 14,
+                          backgroundImage: e["profilePic"] != null
+                              ? NetworkImage(e["profilePic"]!)
+                              : null,
+                          child:
+                              (e["profilePic"] == null ||
+                                  e["profilePic"].toString().isEmpty)
+                              ? Text(e["name"]?[0] ?? "?")
+                              : null,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(e["name"] ?? ""),
+                      ],
+                    ),
+                    onChanged: (v) {
+                      setInnerState(() {
+                        if (v == true)
+                          tmp.add(e["empId"]);
+                        else
+                          tmp.remove(e["empId"]);
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, null),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, tmp.toList()),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+    if (selected != null) {
+      setState(() {
+        members = selected;
+        _update(); // ถ้ามีฟังก์ชัน update ให้เรียกต่อท้าย
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final responsibleEmp = mockEmployeeList.firstWhere(
-      (e) => e['id'] == responsible,
-      orElse: () => {},
+    final responsible = mockEmployeeList.firstWhere(
+      (e) => e["empId"] == responsibleId,
+      orElse: () => <String, dynamic>{},
     );
-    final memberAvatars = members.map((id) {
-      final e = mockEmployeeList.firstWhere(
-        (em) => em['id'] == id,
-        orElse: () => {},
-      );
-      return e != {}
-          ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: CircleAvatar(
-                radius: 13,
-                backgroundImage: NetworkImage(e['profilePic'] ?? ""),
-              ),
-            )
-          : Container();
-    }).toList();
     return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ผู้รับผิดชอบ
             Row(
               children: [
                 const Text(
@@ -197,96 +224,123 @@ class _ProjectStakeholdersState extends State<ProjectStakeholders> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(width: 8),
-                responsibleEmp != {}
-                    ? GestureDetector(
-                        onTap: _selectResponsible,
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundImage: NetworkImage(
-                                responsibleEmp['profilePic'] ?? "",
-                              ),
-                            ),
-                            const SizedBox(width: 7),
-                            Text(responsibleEmp['name']),
-                            const Icon(
-                              Icons.edit,
-                              size: 18,
-                              color: Colors.orange,
-                            ),
-                          ],
-                        ),
+                responsible != null
+                    ? Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundImage: responsible["profilePic"] != null
+                                ? NetworkImage(responsible["profilePic"]!)
+                                : null,
+                            child:
+                                (responsible["profilePic"] == null ||
+                                    responsible["profilePic"]
+                                        .toString()
+                                        .isEmpty)
+                                ? Text(responsible["name"]?[0] ?? "?")
+                                : null,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(responsible["name"] ?? ""),
+                        ],
                       )
-                    : TextButton.icon(
-                        icon: const Icon(Icons.add),
-                        label: const Text("เลือก"),
-                        onPressed: _selectResponsible,
-                      ),
+                    : const Text("-", style: TextStyle(color: Colors.grey)),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: _selectResponsible,
+                  icon: const Icon(Icons.edit, size: 18),
+                  label: const Text("เปลี่ยน"),
+                ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
+            // ฝ่ายที่เกี่ยวข้อง
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "ฝ่ายเกี่ยวข้อง:",
+                  "ฝ่าย:",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(width: 7),
-                ...departments.map((id) {
-                  final d = mockDepartmentList.firstWhere(
-                    (dept) => dept['id'] == id,
-                    orElse: () => {},
-                  );
-                  return d != {}
-                      ? Chip(
-                          label: Text(d['name'] ?? ''),
+                Expanded(
+                  child: Wrap(
+                    spacing: 4,
+                    children: [
+                      ...departments.map((id) {
+                        final dept = mockDepartmentList.firstWhere(
+                          (d) => d["id"] == id,
+                          orElse: () => <String, String>{},
+                        );
+                        if (dept == null) return const SizedBox.shrink();
+                        return Chip(
+                          label: Text(dept["name"] ?? "-"),
                           onDeleted: () {
                             setState(() {
                               departments.remove(id);
-                              widget.onUpdate(
-                                departments,
-                                members,
-                                responsible,
-                              );
+                              _update();
                             });
                           },
-                        )
-                      : Container();
-                }),
-                IconButton(
-                  icon: const Icon(Icons.add_circle),
-                  onPressed: _selectDepartments,
+                        );
+                      }),
+                      ActionChip(
+                        label: const Text("เพิ่ม/แก้ไข"),
+                        avatar: const Icon(Icons.add, size: 16),
+                        onPressed: _selectDepartments,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
+            // บุคคลที่เกี่ยวข้อง
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "บุคคลที่เกี่ยวข้อง:",
+                  "บุคคล:",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(width: 5),
-                ...memberAvatars.take(5),
-                if (memberAvatars.length > 5)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2),
-                    child: InkWell(
-                      child: CircleAvatar(
-                        radius: 13,
-                        child: Text(
-                          "+${memberAvatars.length - 5}",
-                          style: const TextStyle(fontSize: 11),
-                        ),
+                Expanded(
+                  child: Wrap(
+                    spacing: 2,
+                    runSpacing: 2,
+                    children: [
+                      ...members.map((id) {
+                        final emp = mockEmployeeList.firstWhere(
+                          (e) => e["empId"] == id,
+                          orElse: () => <String, dynamic>{},
+                        );
+                        if (emp == null) return const SizedBox.shrink();
+                        return Chip(
+                          avatar: CircleAvatar(
+                            backgroundImage: emp["profilePic"] != null
+                                ? NetworkImage(emp["profilePic"]!)
+                                : null,
+                            child:
+                                (emp["profilePic"] == null ||
+                                    emp["profilePic"].toString().isEmpty)
+                                ? Text(emp["name"]?[0] ?? "?")
+                                : null,
+                          ),
+                          label: Text(emp["name"] ?? "-"),
+                          onDeleted: () {
+                            setState(() {
+                              members.remove(id);
+                              _update();
+                            });
+                          },
+                        );
+                      }),
+                      ActionChip(
+                        label: const Text("เพิ่ม/แก้ไข"),
+                        avatar: const Icon(Icons.add, size: 16),
+                        onPressed: _selectMembers,
                       ),
-                      onTap: _selectMembers,
-                    ),
+                    ],
                   ),
-                IconButton(
-                  icon: const Icon(Icons.add_circle),
-                  onPressed: _selectMembers,
                 ),
               ],
             ),

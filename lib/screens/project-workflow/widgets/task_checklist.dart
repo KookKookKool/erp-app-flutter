@@ -2,14 +2,9 @@ import 'package:flutter/material.dart';
 
 class TaskChecklist extends StatefulWidget {
   final List<Map<String, dynamic>> tasks;
-  final double progress;
-  final Function(List<Map<String, dynamic>>, double) onChanged;
-  const TaskChecklist({
-    super.key,
-    required this.tasks,
-    required this.progress,
-    required this.onChanged,
-  });
+  final void Function(List<Map<String, dynamic>>) onUpdate;
+
+  const TaskChecklist({super.key, required this.tasks, required this.onUpdate});
 
   @override
   State<TaskChecklist> createState() => _TaskChecklistState();
@@ -20,152 +15,81 @@ class _TaskChecklistState extends State<TaskChecklist> {
 
   @override
   void initState() {
-    super.initState();
     tasks = List<Map<String, dynamic>>.from(widget.tasks);
+    super.initState();
   }
 
-  void _toggle(int idx) {
+  double get percent => tasks.isEmpty ? 0.0 : tasks.where((t) => t["completed"] == true).length / tasks.length;
+
+  void addTask(String name) {
     setState(() {
-      tasks[idx]['completed'] = !(tasks[idx]['completed'] ?? false);
-      _updateProgress();
+      tasks.add({"name": name, "completed": false});
+      widget.onUpdate(tasks);
     });
   }
 
-  void _addTask(String taskName) {
+  void updateTask(int idx, bool? val) {
     setState(() {
-      tasks.add({'name': taskName, 'completed': false});
-      _updateProgress();
+      tasks[idx]["completed"] = val ?? false;
+      widget.onUpdate(tasks);
     });
   }
 
-  void _removeTask(int idx) {
+  void removeTask(int idx) {
     setState(() {
       tasks.removeAt(idx);
-      _updateProgress();
+      widget.onUpdate(tasks);
     });
-  }
-
-  void _editTask(int idx, String name) {
-    setState(() {
-      tasks[idx]['name'] = name;
-      widget.onChanged(tasks, _calculateProgress());
-    });
-  }
-
-  double _calculateProgress() {
-    if (tasks.isEmpty) return 0;
-    final done = tasks.where((t) => t['completed'] == true).length;
-    return done / tasks.length;
-  }
-
-  void _updateProgress() {
-    final progress = _calculateProgress();
-    widget.onChanged(tasks, progress);
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Task Checklist", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value: _calculateProgress(),
-              minHeight: 7,
-              backgroundColor: Colors.grey[200],
-              color: Colors.blue,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Text(
-                "Progress: ${(100 * _calculateProgress()).toStringAsFixed(1)}%",
-                style: const TextStyle(fontSize: 13),
-              ),
-            ),
-            ...List.generate(tasks.length, (i) {
-              final t = tasks[i];
-              return ListTile(
-                dense: true,
-                leading: Checkbox(
-                  value: t['completed'] ?? false,
-                  onChanged: (_) => _toggle(i),
-                ),
-                title: GestureDetector(
-                  onTap: () async {
-                    final newName = await showDialog<String>(
+            Row(
+              children: [
+                const Text("Task Checklist", style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(width: 10),
+                Text("${(percent * 100).toStringAsFixed(0)}%", style: const TextStyle(color: Colors.blue)),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.add_circle),
+                  onPressed: () async {
+                    String? newTask = await showDialog<String>(
                       context: context,
-                      builder: (_) {
-                        final ctrl = TextEditingController(text: t['name']);
+                      builder: (ctx) {
+                        final ctrl = TextEditingController();
                         return AlertDialog(
-                          title: const Text("Edit Task"),
-                          content: TextField(controller: ctrl),
+                          title: const Text("เพิ่ม Task"),
+                          content: TextField(controller: ctrl, decoration: const InputDecoration(hintText: "Task name")),
                           actions: [
-                            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-                            TextButton(onPressed: () => Navigator.pop(context, ctrl.text), child: const Text("Save")),
+                            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+                            TextButton(onPressed: () => Navigator.pop(ctx, ctrl.text), child: const Text("OK")),
                           ],
                         );
                       },
                     );
-                    if (newName != null && newName.isNotEmpty) {
-                      _editTask(i, newName);
-                    }
+                    if (newTask != null && newTask.trim().isNotEmpty) addTask(newTask.trim());
                   },
-                  child: Text(
-                    t['name'] ?? "",
-                    style: TextStyle(decoration: t['completed'] == true ? TextDecoration.lineThrough : null),
-                  ),
                 ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red, size: 18),
-                  onPressed: () => _removeTask(i),
-                ),
-              );
-            }),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        labelText: "Add Task",
-                        isDense: true,
-                        border: OutlineInputBorder(),
-                      ),
-                      onSubmitted: (v) {
-                        if (v.isNotEmpty) _addTask(v);
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle),
-                    onPressed: () async {
-                      final newTask = await showDialog<String>(
-                        context: context,
-                        builder: (_) {
-                          final ctrl = TextEditingController();
-                          return AlertDialog(
-                            title: const Text("Add Task"),
-                            content: TextField(controller: ctrl, autofocus: true),
-                            actions: [
-                              TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-                              TextButton(onPressed: () => Navigator.pop(context, ctrl.text), child: const Text("Add")),
-                            ],
-                          );
-                        },
-                      );
-                      if (newTask != null && newTask.isNotEmpty) {
-                        _addTask(newTask);
-                      }
-                    },
-                  ),
-                ],
-              ),
+              ],
             ),
+            LinearProgressIndicator(value: percent, minHeight: 8),
+            ...tasks.asMap().entries.map((entry) => Dismissible(
+                  key: ValueKey(entry.key),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (_) => removeTask(entry.key),
+                  background: Container(color: Colors.red, alignment: Alignment.centerRight, child: const Padding(padding: EdgeInsets.only(right: 14), child: Icon(Icons.delete, color: Colors.white))),
+                  child: CheckboxListTile(
+                    value: entry.value["completed"] ?? false,
+                    title: Text(entry.value["name"] ?? ""),
+                    onChanged: (v) => updateTask(entry.key, v),
+                  ),
+                )),
           ],
         ),
       ),
