@@ -40,10 +40,12 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
         (project?["activitylog"] as List?)?.cast<Map<String, dynamic>>() ?? [];
   }
 
-  void _onEditName(String name, String desc) {
+  void _onEditName(String name, String desc, DateTime? start, DateTime? due) {
     setState(() {
       project?["name"] = name;
       project?["description"] = desc;
+      project?["startDate"] = start?.toIso8601String().substring(0, 10);
+      project?["dueDate"] = due?.toIso8601String().substring(0, 10);
     });
   }
 
@@ -78,14 +80,14 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
     });
   }
 
-@override
-Widget build(BuildContext context) {
-  if (project == null) {
-    return const ProjectLoadingWidget();
-  }
-  return Scaffold(
-    appBar: AppBar(title: const Text("Project Detail")),
-    body: SingleChildScrollView(
+  @override
+  Widget build(BuildContext context) {
+    if (project == null) {
+      return const ProjectLoadingWidget();
+    }
+    return Scaffold(
+      appBar: AppBar(title: const Text("Project Detail")),
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -94,6 +96,12 @@ Widget build(BuildContext context) {
               ProjectNameEditor(
                 initialName: project?["name"] ?? "",
                 initialDescription: project?["description"] ?? "",
+                initialStartDate: project?["startDate"] != null
+                    ? DateTime.tryParse(project?["startDate"])
+                    : null,
+                initialEndDate: project?["dueDate"] != null
+                    ? DateTime.tryParse(project?["dueDate"])
+                    : null,
                 onEdit: _onEditName,
               ),
               const SizedBox(height: 14),
@@ -118,6 +126,51 @@ Widget build(BuildContext context) {
               ActivityLog(
                 activitylog: activitylog,
                 onUpdate: _onUpdateActivityLog,
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                  icon: const Icon(Icons.delete),
+                  label: const Text("ลบโปรเจ็ค"),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text("ยืนยันการลบโปรเจ็ค"),
+                        content: const Text(
+                          "คุณต้องการลบโปรเจ็คนี้จริงหรือไม่?",
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            child: const Text("ยกเลิก"),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                            ),
+                            onPressed: () => Navigator.pop(ctx, true),
+                            child: const Text("ลบ"),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      mockProjectList.removeWhere(
+                        (p) => p['id'] == widget.projectId,
+                      );
+                      Navigator.pop(context); // กลับไปหน้า home
+                    }
+                  },
+                ),
               ),
             ],
           ),

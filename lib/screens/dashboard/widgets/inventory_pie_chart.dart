@@ -16,14 +16,14 @@ class InventoryPieChart extends StatelessWidget {
             PieChartSectionData(
               value: lowStock.toDouble(),
               color: Colors.redAccent,
-              title: 'ต่ำ (${lowStock})',
+              title: 'ต่ำ ($lowStock)',
               titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               radius: 52,
             ),
             PieChartSectionData(
               value: inStock.toDouble(),
               color: Colors.lightGreen,
-              title: 'ปกติ (${inStock})',
+              title: 'ปกติ ($inStock)',
               titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               radius: 52,
             ),

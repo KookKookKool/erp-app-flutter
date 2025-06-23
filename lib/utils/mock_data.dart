@@ -340,28 +340,54 @@ List<Map<String, dynamic>> getMovements({String? code}) {
 
 /// =========== PROJECTS (โครงการ) =============
 List<Map<String, dynamic>> mockProjectList = [
+  // ...project P001 (Processing)...
   {
-    "id": "P001",
-    "name": "ERP Implementation",
-    "description": "ปรับใช้ระบบ ERP ครบวงจร",
+    "id": "P002",
+    "name": "Website Redesign",
+    "description": "รีดีไซน์เว็บไซต์บริษัท",
+    "responsible": "EMP002",
+    "departments": ["D03"],
+    "members": ["EMP002", "EMP003"],
+    "progress": 0.0,
+    "startDate": "2024-07-01",
+    "dueDate": "2024-08-01",
+    "status": "Not Started",
+    "tasks": [],
+    "comments": [],
+    "activitylog": [],
+  },
+  {
+    "id": "P003",
+    "name": "HR Onboarding",
+    "description": "ระบบรับพนักงานใหม่",
     "responsible": "EMP001",
-    "departments": ["D01", "D02"],
-    "members": ["EMP001", "EMP002"],
-    "progress": 0.7,
+    "departments": ["D01"],
+    "members": ["EMP001"],
+    "progress": 1.0,
+    "startDate": "2024-05-01",
+    "dueDate": "2024-06-01",
+    "status": "Done",
     "tasks": [
-      {"name": "Requirement Analysis", "completed": true},
-      {"name": "System Setup", "completed": false},
+      {"name": "เตรียมเอกสาร", "completed": true},
+      {"name": "อบรม", "completed": true},
     ],
-    "comments": [
-      {
-        "user": "E002",
-        "text": "เราต้องปรับ timeline ให้เร็วขึ้น",
-        "createdAt": "2024-06-22 09:00"
-      }
-    ],
-    "activitylog": [
-      {"user": "E001", "action": "สร้างโครงการ", "date": "2024-06-21"}
-    ],
+    "comments": [],
+    "activitylog": [],
+  },
+  {
+    "id": "P004",
+    "name": "Sales Campaign",
+    "description": "แคมเปญการขาย Q3",
+    "responsible": "EMP003",
+    "departments": ["D04"],
+    "members": ["EMP003"],
+    "progress": 0.0,
+    "startDate": "2024-06-15",
+    "dueDate": "2024-07-15",
+    "status": "Canceled",
+    "tasks": [],
+    "comments": [],
+    "activitylog": [],
   },
 ];
 

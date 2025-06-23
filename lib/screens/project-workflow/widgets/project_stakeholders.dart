@@ -14,12 +14,12 @@ class ProjectStakeholders extends StatefulWidget {
   onChanged;
 
   const ProjectStakeholders({
-    Key? key,
+    super.key,
     required this.responsibleId,
     required this.departments,
     required this.members,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<ProjectStakeholders> createState() => _ProjectStakeholdersState();
@@ -103,10 +103,11 @@ class _ProjectStakeholdersState extends State<ProjectStakeholders> {
                     title: Text(d["name"] ?? ""),
                     onChanged: (v) {
                       setInnerState(() {
-                        if (v == true)
+                        if (v == true) {
                           tmp.add((d["id"] ?? "").toString());
-                        else
+                        } else {
                           tmp.remove(d["id"]);
+                        }
                       });
                     },
                   );
@@ -171,10 +172,11 @@ class _ProjectStakeholdersState extends State<ProjectStakeholders> {
                     ),
                     onChanged: (v) {
                       setInnerState(() {
-                        if (v == true)
+                        if (v == true) {
                           tmp.add(e["empId"]);
-                        else
+                        } else {
                           tmp.remove(e["empId"]);
+                        }
                       });
                     },
                   );
