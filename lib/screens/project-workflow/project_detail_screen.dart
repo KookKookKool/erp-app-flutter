@@ -6,6 +6,7 @@ import 'widgets/project_stakeholders.dart';
 import 'widgets/task_checklist.dart';
 import 'widgets/comment_section.dart';
 import 'widgets/activity_log.dart';
+import 'widgets/project_loading_widget.dart';
 
 class ProjectDetailScreen extends StatefulWidget {
   final String projectId;
@@ -47,14 +48,14 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
   }
 
   void _onUpdateStakeholders(
+    String responsible,
     List<String> departments,
     List<String> members,
-    String responsible,
   ) {
     setState(() {
+      project?["responsible"] = responsible;
       project?["departments"] = departments;
       project?["members"] = members;
-      project?["responsible"] = responsible;
     });
   }
 
@@ -77,13 +78,14 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (project == null)
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
-    return Scaffold(
-      appBar: AppBar(title: const Text("Project Detail")),
-      body: SingleChildScrollView(
+@override
+Widget build(BuildContext context) {
+  if (project == null) {
+    return const ProjectLoadingWidget();
+  }
+  return Scaffold(
+    appBar: AppBar(title: const Text("Project Detail")),
+    body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -99,13 +101,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                 responsibleId: project?["responsible"] ?? "",
                 departments: List<String>.from(project?["departments"] ?? []),
                 members: List<String>.from(project?["members"] ?? []),
-                onChanged: (newResponsible, newDepts, newMembers) {
-                  setState(() {
-                    project?["responsible"] = newResponsible;
-                    project?["departments"] = newDepts;
-                    project?["members"] = newMembers;
-                  });
-                },
+                onChanged: _onUpdateStakeholders,
               ),
               const SizedBox(height: 16),
               TaskChecklist(

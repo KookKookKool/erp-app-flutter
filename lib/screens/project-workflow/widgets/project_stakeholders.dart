@@ -224,7 +224,7 @@ class _ProjectStakeholdersState extends State<ProjectStakeholders> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(width: 8),
-                responsible != null
+                responsible.isNotEmpty
                     ? Row(
                         children: [
                           CircleAvatar(
@@ -272,7 +272,6 @@ class _ProjectStakeholdersState extends State<ProjectStakeholders> {
                           (d) => d["id"] == id,
                           orElse: () => <String, String>{},
                         );
-                        if (dept == null) return const SizedBox.shrink();
                         return Chip(
                           label: Text(dept["name"] ?? "-"),
                           onDeleted: () {
@@ -313,7 +312,6 @@ class _ProjectStakeholdersState extends State<ProjectStakeholders> {
                           (e) => e["empId"] == id,
                           orElse: () => <String, dynamic>{},
                         );
-                        if (emp == null) return const SizedBox.shrink();
                         return Chip(
                           avatar: CircleAvatar(
                             backgroundImage: emp["profilePic"] != null

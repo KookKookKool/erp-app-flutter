@@ -43,7 +43,7 @@ class HRMHomeScreen extends StatelessWidget {
               mainAxisSpacing = 32.0;
               crossAxisSpacing = 32.0;
             }
-            double maxCardWidth = 250.0;
+//            double maxCardWidth = 250.0;
 
             return GridView.count(
               crossAxisCount: crossAxisCount,
