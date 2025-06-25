@@ -107,8 +107,9 @@ class _TaskChecklistState extends State<TaskChecklist> {
                             );
                           },
                         );
-                        if (newTask != null && newTask.trim().isNotEmpty)
+                        if (newTask != null && newTask.trim().isNotEmpty) {
                           addTask(newTask.trim());
+                        }
                       },
                     ),
                   ],

@@ -54,24 +54,67 @@ class _MainResponsiveShellState extends State<MainResponsiveShell> {
     final isLargeScreen = MediaQuery.of(context).size.width >= 900;
 
     return Scaffold(
+      // --- ปรับสี AppBar สำหรับจอเล็ก ---
+      // AppBar จะแสดงเฉพาะเมื่อไม่ใช่จอใหญ่ (isLargeScreen เป็น false)
       appBar: isLargeScreen
           ? null
-          : AppBar(title: Text(_titles[_selectedIndex])),
+          : AppBar(
+              iconTheme: const IconThemeData(color: Colors.red),
+              flexibleSpace: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFFFD700), // Warm Yellow
+                      Color(0xFFFF8C00), // Vibrant Orange
+                      Color(0xFFFF4500), // Deep Red-Orange
+                    ],
+                    stops: [0.0, 0.7, 1.0],
+                  ),
+                ),
+              ),
+              title: Text(
+                _titles[_selectedIndex],
+                style: const TextStyle(
+                  color: Colors.white, // ข้อความเป็นสีขาว
+                  // ไม่ปรับ fontWeight, fontSize, shadows ตามคำขอ (คงเดิมจากโค้ดเดิม)
+                ),
+              ),
+              centerTitle: true, // จัดให้อยู่ตรงกลาง
+              elevation: 0, // ยกเลิกเงา
+            ),
+      // Drawer ถูกจัดการใน `app_drawer.dart` ซึ่งต้องมีการปรับสไตล์ในไฟล์นั้นแยกต่างหาก
       drawer: isLargeScreen
           ? null
           : AppDrawer(onMenuTap: _onMenuTap, selectedIndex: _selectedIndex),
-      body: Row(
-        children: [
-          if (isLargeScreen)
-            SizedBox(
-              width: 280,
-              child: AppDrawer(
-                onMenuTap: _onMenuTap,
-                selectedIndex: _selectedIndex,
+      // --- ปรับสี Background ของ Body (พื้นที่แสดงผลของแต่ละหน้า) ---
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFFF3E0), // Very light peach/cream
+              Color(0xFFFFECB3), // Light Peach
+              Color(0xFFFBE4C4), // Slightly darker peach/cream
+            ],
+            stops: [0.0, 0.5, 1.0],
+          ),
+        ),
+        child: Row(
+          children: [
+            if (isLargeScreen)
+              SizedBox(
+                width: 280,
+                child: AppDrawer(
+                  onMenuTap: _onMenuTap,
+                  selectedIndex: _selectedIndex,
+                ),
               ),
-            ),
-          Expanded(child: _pages[_selectedIndex]),
-        ],
+            Expanded(child: _pages[_selectedIndex]),
+          ],
+        ),
       ),
     );
   }

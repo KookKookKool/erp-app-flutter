@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ERP App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue),
+//      theme: ,
       home: SplashScreen(),
       routes: {
         '/org': (context) => OrgCodeScreen(),

@@ -41,8 +41,11 @@ class _ProjectHomeScreenState extends State<ProjectHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 900;
     return Scaffold(
-      appBar: AppBar(centerTitle: true),
+      appBar: isLargeScreen
+          ? AppBar(title: const Text("Project & Workflow"), centerTitle: true)
+          : null,
       body: Column(
         children: [
           // Filter Tab
