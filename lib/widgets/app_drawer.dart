@@ -5,21 +5,24 @@ class AppDrawer extends StatelessWidget {
   final int selectedIndex;
   final void Function(int)? onMenuTap;
 
-  const AppDrawer({
-    super.key,
-    this.selectedIndex = 0,
-    this.onMenuTap,
-  });
+  const AppDrawer({super.key, this.selectedIndex = 0, this.onMenuTap});
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      // 1. กำหนดสีพื้นหลังของ Drawer ให้เป็นสีเดียวกับสีอ่อนที่สุดในพื้นหลังจอหลัก
-      backgroundColor: const Color(0xFFFFF3E0), // Very light peach/cream
+      backgroundColor: const Color(0xFFFFF3E0),
+      // เพิ่ม shape ตรงนี้
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(0), // ปรับมุมขวาบนให้เป็น 0 หรือตามต้องการ
+          topLeft: Radius.circular(0), // ปรับมุมซ้ายบนให้เป็น 0 หรือตามต้องการ
+          bottomRight: Radius.circular(0),
+          bottomLeft: Radius.circular(0),
+        ),
+      ),
       child: SafeArea(
         child: Column(
           children: [
-            // 2. ปรับ UserAccountsDrawerHeader ให้ใช้ Gradient แบบเดียวกับ AppBar
             UserAccountsDrawerHeader(
               currentAccountPicture: CircleAvatar(
                 backgroundImage: NetworkImage(
@@ -29,8 +32,9 @@ class AppDrawer extends StatelessWidget {
               accountName: const Text(
                 "ศิริพร ใจดี (ฝ้าย)",
                 style: TextStyle(
-                    color: Colors.white, // ตัวอักษรสีขาว
-                    fontWeight: FontWeight.bold),
+                  color: Colors.white, // ตัวอักษรสีขาว
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               accountEmail: const Text(
                 "faijai@gmail.com",
@@ -108,7 +112,9 @@ class AppDrawer extends StatelessWidget {
               onTap: onMenuTap,
             ),
             const Spacer(), // ใช้ Spacer เพื่อดันรายการด้านล่างลงไป
-            const Divider(color: Colors.black12), // ปรับสี Divider ให้เข้ากับธีม
+            const Divider(
+              color: Color(0xFF8B4513),
+            ), // ปรับสี Divider ให้เข้ากับธีม
             _buildDrawerItem(
               context,
               icon: Icons.settings,
@@ -149,19 +155,21 @@ class AppDrawer extends StatelessWidget {
       leading: Icon(
         icon,
         // สี Icon: ส้มเข้มเมื่อเลือก, ดำเข้มเมื่อไม่เลือก
-        color: isSelected ? const Color(0xFFDD6600) : Colors.black87,
+        color: isSelected ? const Color(0xFFDD6600) : Color(0xFF8B4513),
       ),
       title: Text(
         title,
         style: TextStyle(
           // สี Text: ส้มเข้มเมื่อเลือก, ดำเข้มเมื่อไม่เลือก
-          color: isSelected ? const Color(0xFFDD6600) : Colors.black87,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, // ตัวหนาเมื่อเลือก
+          color: isSelected ? const Color(0xFFDD6600) : Color(0xFF8B4513),
+          fontWeight: isSelected
+              ? FontWeight.bold
+              : FontWeight.normal, // ตัวหนาเมื่อเลือก
         ),
       ),
       selected: isSelected, // กำหนดสถานะ selected
       // สีพื้นหลังเมื่อถูกเลือก (Light Peach จากธีม)
-      selectedTileColor: const Color(0xFFFFECB3), 
+      selectedTileColor: const Color(0xFFFFECB3),
       onTap: () => onTap?.call(index), // เรียก onTap callback
     );
   }

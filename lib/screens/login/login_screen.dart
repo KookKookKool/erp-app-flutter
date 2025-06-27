@@ -328,8 +328,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                           activeColor: const Color(0xFF8B4513),
                           checkColor: Colors.white,
-                          side: MaterialStateBorderSide.resolveWith((states) {
-                            if (states.contains(MaterialState.selected)) {
+                          side: WidgetStateBorderSide.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
                               return const BorderSide(
                                 color: Color(0xFF8B4513),
                                 width: 2,
